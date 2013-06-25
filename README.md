@@ -31,4 +31,4 @@ maintenance and deployment.
 
 Lead Developer: Paul Bailey: [Twitter](https://twitter.com/pizzapanther) - [GitHub](https://github.com/pizzapanther) - [G+](https://plus.google.com/111994399408696258069)
 
-Initial development funded by: (CultureMap.com)[http://houston.culturemap.com/]
+Initial development funded by: [CultureMap.com](http://houston.culturemap.com/)
