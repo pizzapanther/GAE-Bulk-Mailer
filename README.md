@@ -19,3 +19,10 @@ GAE Bulk Mailer provides the following:
   1. Sending API so you can switch e-mail sending providers.
   2. Template API when sending.
   3. Tracking and reporting: tracks opens, links, unsubscribes, mail client, etc.
+
+## Why App Engine?
+
+Tracking can be a very write heavy operation so having a service that can scale
+automatically as you grow and can scale back down when your traffic dies down is
+desired. App Engine provides this without having to worry about server 
+maintenance and deployment.
