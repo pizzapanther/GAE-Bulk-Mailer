@@ -16,3 +16,10 @@ env_variables:
   
 builtins:
 - remote_api: on
+
+libraries:
+- name: jinja2
+  version: 2.6
+- name: markupsafe
+  version: latest
+  

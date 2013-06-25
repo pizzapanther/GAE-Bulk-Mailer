@@ -111,9 +111,7 @@ ROOT_URLCONF = 'urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'bulkmail.wsgi.app'
 
-TEMPLATE_DIRS = (
-  os.path.join(PPATH, 'templates'),
-)
+TEMPLATE_DIRS = ()
 
 INSTALLED_APPS = (
   
@@ -149,6 +147,9 @@ LOGGING = {
 }
 
 SUPER_ADMINS = ()
+
+from jinja2 import Environment, PackageLoader
+TPL_ENV = Environment(loader=PackageLoader('bulkmail', 'templates'))
 
 try:
   from local_settings import *
