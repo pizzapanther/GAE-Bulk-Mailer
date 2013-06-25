@@ -4,3 +4,15 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+handlers:
+- url: /static
+  static_dir: static
+  
+- url: /.*
+  script: bulkmail.wsgi.app
+  
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'settings'
+  
+builtins:
+- remote_api: on
