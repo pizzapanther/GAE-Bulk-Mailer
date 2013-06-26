@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ verb }} API Key &sdot; {% endblock %}
+{% block content %}
+<h1>{{ verb }} API Key</h1>
+<form action="./" method="POST">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
+  {{ form.as_p() }}
+  <p>
+    <input type="submit" name="submit" value="{{ verb }}">
+  </p>
+</form>
+{% endblock %}

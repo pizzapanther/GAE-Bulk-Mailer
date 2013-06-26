@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}API Keys &sdot; {% endblock %}
+{% block content %}
+<h1>API Keys</h1>
+<hr>
+<a href="./add/">Add</a>
+<hr>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Key</th>
+    <th>Created</th>
+    <th>Created By</th>
+  </tr>
+  {% for key in keys %}
+  <tr>
+    <td>{{ key.name }}</td>
+    <td>{{ key.akey }}</td>
+    <td>{{ key.created }}</td>
+    <td>{{ key.created_by }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
