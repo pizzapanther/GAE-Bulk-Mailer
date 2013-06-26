@@ -4,12 +4,15 @@ import logging
 import datetime
 import types
 import importlib
+import urllib
+import json
 
 from django import http
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
 from google.appengine.ext import ndb
+from google.appengine.api import urlfetch
 
 from .shortcuts import render_tpl, ok
 from .api.models import Bounce, Campaign, Unsubscribe
@@ -29,11 +32,16 @@ def unsubscribe (request, list_id, campaign_id):
     cmpgn = Campaign.query(Campaign.list_id == list_id, Campaign.campaign_id == campaign_id).get()
     if cmpgn:
       if key == emailer_key(email, list_id, campaign_id, cmpgn.salt):
-        unsub = Unsubscribe(email=email.lower(), list_id=list_id, campaign_id=campaign_id)
-        unsub.put()
-        
-        #todo: report unsubscribe and redirect
-        return ok()
+        if Unsubscribe.query(Unsubscribe.email == email.lower(), Unsubscribe.list_id == list_id, Unsubscribe.campaign_id == campaign_id).count() == 0:
+          unsub = Unsubscribe(email=email.lower(), list_id=list_id, campaign_id=campaign_id)
+          unsub.put()
+          
+        form_data = {'email': email, 'list_id': list_id, 'campaign_id': campaign_id}
+        form_data.update(settings.REPORT_PAYLOAD)
+        form_data = urllib.urlencode(form_data)
+        result = urlfetch.fetch(url=settings.REPORT_UNSUBSCRIBE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        rdata = json.loads(result.content)
+        return http.HttpResponseRedirect(rdata['url'])
         
   raise http.Http404
   
@@ -105,7 +113,11 @@ def bouncer (request):
     b.campaign_id = found.group(2)
     b.put()
     
-    #todo: report bounce back
+    form_data = {'email': kwargs['original_to'], 'list_id': b.list_id, 'campaign_id': b.campaign_id}
+    form_data.update(settings.REPORT_PAYLOAD)
+    form_data = urllib.urlencode(form_data)
+    result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    logging.info('Bounce Report Status: ' + str(result.status_code))
     
   return ok()
   

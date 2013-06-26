@@ -149,13 +149,16 @@ LOGGING = {
     }
 }
 
-SUPER_ADMINS = ()
-
 LIST_LIMIT = 1000
 
 EMAILER = 'bulkmail.mailers.gae'
 
+SUPER_ADMINS = ()
+
 BASE_URL = 'https://APPID.appspot.com'
+
+REPORT_BOUNCE_URL = 'https://example.com/bounce'
+REPORT_UNSUBSCRIBE_URL = 'https://example.com/unsubscribe'
 
 from jinja2 import Environment, PackageLoader
 TPL_ENV = Environment(loader=PackageLoader('bulkmail', 'templates'))
