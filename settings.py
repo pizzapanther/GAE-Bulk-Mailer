@@ -100,8 +100,11 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+  'google.appengine.ext.ndb.django_middleware.NdbDjangoMiddleware',
   'django.middleware.common.CommonMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
+  'bulkmail.middleware.Session',
+  'bulkmail.middleware.ApiExceptions',
   # Uncomment the next line for simple clickjacking protection:
   # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -147,6 +150,8 @@ LOGGING = {
 }
 
 SUPER_ADMINS = ()
+
+LIST_LIMIT = 1000
 
 from jinja2 import Environment, PackageLoader
 TPL_ENV = Environment(loader=PackageLoader('bulkmail', 'templates'))

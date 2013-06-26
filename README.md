@@ -27,7 +27,7 @@ automatically as you grow and can scale back down when your traffic dies down is
 desired. App Engine provides this without having to worry about server 
 maintenance and deployment.
 
-### GAE is brought by:
+### GAE Bulk Mailer is brought to you by:
 
 Lead Developer: Paul Bailey: [Twitter](https://twitter.com/pizzapanther) - [GitHub](https://github.com/pizzapanther) - [G+](https://plus.google.com/111994399408696258069)
 
