@@ -4,6 +4,9 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+inbound_services:
+- mail_bounce
+
 handlers:
 - url: /favicon.ico
   static_files: static/favicon.ico
@@ -11,6 +14,14 @@ handlers:
   
 - url: /static
   static_dir: static
+  
+- url: /mailer
+  script: bulkmail.wsgi.app
+  login: admin
+  
+- url: /_ah/bounce
+  script: bulkmail.wsgi.app
+  login: admin
   
 - url: /.*
   script: bulkmail.wsgi.app

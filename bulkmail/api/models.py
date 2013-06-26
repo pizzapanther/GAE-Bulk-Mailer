@@ -18,6 +18,9 @@ def generate_key ():
     
   return akey
   
+def generate_salt (dt):
+  return str(dt) + str(random.getrandbits(50))
+  
 class Campaign (ndb.Model):
   subject = ndb.StringProperty(required=True)
   reply_to = ndb.StringProperty(required=True)
@@ -31,7 +34,36 @@ class Campaign (ndb.Model):
   created = ndb.DateTimeProperty(auto_now_add=True)
   
   sent = ndb.DateTimeProperty(required=False)
+  finished = ndb.DateTimeProperty(required=False)
   send = ndb.DateTimeProperty(required=False)
   
   send_data = ndb.JsonProperty(repeated=True, compressed=True)
+  
+  salt = ndb.StringProperty(required=True)
+  
+class Unsubscribe (ndb.Model):
+  email = ndb.StringProperty()
+  list_id = ndb.StringProperty()
+  campaign_id = ndb.StringProperty()
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  
+class Bounce (ndb.Model):
+  original_from = ndb.StringProperty()
+  original_to = ndb.StringProperty()
+  original_subject = ndb.StringProperty()
+  original_text = ndb.TextProperty()
+  
+  notification_from = ndb.StringProperty()
+  notification_to = ndb.StringProperty()
+  notification_subject = ndb.StringProperty()
+  notification_text = ndb.TextProperty()
+  
+  raw_message = ndb.TextProperty()
+  
+  list_id = ndb.StringProperty()
+  campaign_id = ndb.StringProperty()
+  
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  
+  reported = ndb.BooleanProperty(default=False)
   

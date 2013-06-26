@@ -153,6 +153,10 @@ SUPER_ADMINS = ()
 
 LIST_LIMIT = 1000
 
+EMAILER = 'bulkmail.mailers.gae'
+
+BASE_URL = 'https://APPID.appspot.com'
+
 from jinja2 import Environment, PackageLoader
 TPL_ENV = Environment(loader=PackageLoader('bulkmail', 'templates'))
 
