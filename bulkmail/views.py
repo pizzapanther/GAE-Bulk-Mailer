@@ -15,6 +15,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import urlfetch
 
 from .shortcuts import render_tpl, ok
+from .utils import RateLimit
 from .api.models import Bounce, Campaign, Unsubscribe
 from .mailers.base import emailer_key
 
@@ -62,6 +63,7 @@ def mailer (request):
       cmpgn.salt,
     )
     
+    rl = RateLimit(settings.MAIL_SEND_RATE, settings.MAIL_SEND_INTERVAL)
     for elist in cmpgn.send_data:
       for edata in elist:
         if type(edata) == types.UnicodeType or type(edata) == types.StringType:
@@ -76,6 +78,7 @@ def mailer (request):
         logging.info(email)
         
         emailer.send(email, context)
+        rl.limit()
         
     emailer.close()
     cmpgn.finished = datetime.datetime.utcnow()

@@ -152,6 +152,8 @@ LOGGING = {
 LIST_LIMIT = 1000
 
 EMAILER = 'bulkmail.mailers.gae'
+MAIL_SEND_RATE = 5100
+MAIL_SEND_INTERVAL = 'minutes'
 
 SUPER_ADMINS = ()
 
