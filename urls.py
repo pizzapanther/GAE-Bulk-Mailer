@@ -5,6 +5,9 @@ urlpatterns = patterns('',
   
   url(r'^unsubscribe/(\S+)/(\S+)/$', 'bulkmail.views.unsubscribe', name='unsubscribe'),
   url(r'^mailer$', 'bulkmail.views.mailer', name='mailer'),
+  
   url(r'^_ah/bounce$', 'bulkmail.views.bouncer', name='bouncer'),
+  url(r'^amazon-bounce.*$', 'bulkmail.views.amazon_bouncer', name='amazon_bouncer'),
+  
   url(r'^$', 'bulkmail.views.home', name='home'),
 )

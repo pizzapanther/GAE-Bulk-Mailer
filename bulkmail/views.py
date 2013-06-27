@@ -77,6 +77,7 @@ def mailer (request):
         
         emailer.send(email, context)
         
+    emailer.close()
     cmpgn.finished = datetime.datetime.utcnow()
     cmpgn.put()
     
@@ -119,5 +120,47 @@ def bouncer (request):
     result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     logging.info('Bounce Report Status: ' + str(result.status_code))
     
+  return ok()
+  
+@csrf_exempt
+def amazon_bouncer (request):
+  #todo: add signature verificiation
+  try:
+    data = json.loads(request.body)
+    
+  except:
+    pass
+  
+  else:
+    if data.has_key('Type'):
+      if data['Type'] == 'SubscriptionConfirmation':
+        urlfetch.fetch(url=data['SubscribeURL'])
+        
+      elif data['Type'] == 'UnsubscribeConfirmation':
+        urlfetch.fetch(url=data['UnsubscribeURL'])
+        
+    elif data.has_key('notificationType'):
+      if data['notificationType'] == 'Bounce':
+        for user in data['bounce']['bouncedRecipients']:
+          b = Bounce(btype='bounce', original_to=user['emailAddress'], raw_message=request.body)
+          b.put()
+          
+          form_data = {'email': b.original_to}
+          form_data.update(settings.REPORT_PAYLOAD)
+          form_data = urllib.urlencode(form_data)
+          result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+          logging.info('Bounce Report Status: ' + str(result.status_code))
+          
+      elif data['notificationType'] == 'Complaint':
+        for user in data['complaint']['complainedRecipients']:
+          b = Bounce(btype='complaint', original_to=user['emailAddress'], raw_message=request.body)
+          b.put()
+          
+          form_data = {'email': b.original_to}
+          form_data.update(settings.REPORT_PAYLOAD)
+          form_data = urllib.urlencode(form_data)
+          result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+          logging.info('Complaint Report Status: ' + str(result.status_code))
+            
   return ok()
   

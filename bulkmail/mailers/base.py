@@ -42,3 +42,6 @@ class BaseEmailer (object):
   def send (self, email, context):
     raise NotImplementedError
     
+  def close (self):
+    pass
+  

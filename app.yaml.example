@@ -37,4 +37,3 @@ libraries:
   version: 2.6
 - name: markupsafe
   version: latest
-  

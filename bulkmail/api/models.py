@@ -67,3 +67,5 @@ class Bounce (ndb.Model):
   
   reported = ndb.BooleanProperty(default=False)
   
+  btype = ndb.StringProperty(default='bounce')
+  
