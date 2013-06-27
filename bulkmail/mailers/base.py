@@ -5,6 +5,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from jinja2 import Template
+from bs4 import BeautifulSoup
+
+from ..tracking.models import Url
 
 def emailer_key (*args):
   text = ':'.join(args)
@@ -20,9 +23,28 @@ class BaseEmailer (object):
     self.campaign_id = campaign_id
     self.salt = salt
     
-  def render (self, tpl, context):
+    self.urls = {}
+    
+  def render (self, tpl, context, html=False):
     template = Template(tpl)
-    return template.render(**context)
+    text = template.render(**context)
+    if html:
+      soup = BeautifulSoup(text)
+      for link in soup.find_all('a'):
+        href = link.get('href')
+        if href and href.startswith(('http://', 'https://')):
+          if not href.startswith(settings.BASE_URL):
+            if href in self.urls:
+              link['href'] = self.urls[href]
+              
+            else:
+              url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
+              url.put()
+              link['href'] = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
+              
+      text = unicode(soup)
+      
+    return text
     
   def generate_key (self, email):
     return emailer_key(email, self.list_id, self.campaign_id, self.salt)

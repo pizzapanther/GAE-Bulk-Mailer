@@ -20,7 +20,7 @@ class EMailer (BaseEmailer):
     )
     
     if self.html_tpl:
-      message.html = self.render(self.html_tpl, context)
+      message.html = self.render(self.html_tpl, context, True)
       
     message.send()
     

@@ -3,6 +3,8 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('',
   url(r'^api/', include('bulkmail.api.urls')),
   
+  url(r'^analytics/', include('bulkmail.tracking.urls')),
+  
   url(r'^unsubscribe/(\S+)/(\S+)/$', 'bulkmail.views.unsubscribe', name='unsubscribe'),
   url(r'^mailer$', 'bulkmail.views.mailer', name='mailer'),
   

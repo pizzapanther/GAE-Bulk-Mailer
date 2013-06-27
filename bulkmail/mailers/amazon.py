@@ -65,7 +65,7 @@ class EMailer (BaseEmailer):
     )
     
     if self.html_tpl:
-      msg.attach_alternative(self.render(self.html_tpl, context), "text/html")
+      msg.attach_alternative(self.render(self.html_tpl, context, True), "text/html")
       
     self.connection.send(email, msg.message().as_string())
     
