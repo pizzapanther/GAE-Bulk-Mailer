@@ -30,18 +30,26 @@ class BaseEmailer (object):
     text = template.render(**context)
     if html:
       soup = BeautifulSoup(text)
-      for link in soup.find_all('a'):
-        href = link.get('href')
-        if href and href.startswith(('http://', 'https://')):
-          if not href.startswith(settings.BASE_URL):
-            if href in self.urls:
-              link['href'] = self.urls[href]
-              
-            else:
-              url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
-              url.put()
-              link['href'] = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
-              
+      soupers = {
+        'a': 'href',
+        'img': 'src',
+      }
+      
+      for tag, attr in soupers.items():
+        for link in soup.find_all(tag):
+          href = link.get(attr)
+          if href and href.startswith(('http://', 'https://')):
+            if not href.startswith(settings.BASE_URL):
+              if href in self.urls:
+                link[attr] = self.urls[href]
+                
+              else:
+                url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
+                url.put()
+                new_url = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
+                self.urls[href] = new_url
+                link[attr] = new_url
+                
       text = unicode(soup)
       
     return text
