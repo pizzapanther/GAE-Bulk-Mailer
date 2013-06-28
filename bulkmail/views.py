@@ -19,6 +19,7 @@ from .shortcuts import render_tpl, ok
 from .utils import RateLimit
 from .api.models import Bounce, Campaign, Unsubscribe
 from .mailers.base import emailer_key
+from .mailers.amazon import amazon_send
 
 imp = importlib.import_module(settings.EMAILER)
 EMailer = imp.EMailer
@@ -48,6 +49,16 @@ def unsubscribe (request, list_id, campaign_id):
   raise http.Http404
   
 @csrf_exempt
+def amazon_sender (request):
+  if request.META['HTTP_X_APPENGINE_TASKRETRYCOUNT'] != '0':
+    return ok()
+    
+  kwargs = json.loads(request.POST.get('data'))
+  amazon_send(**kwargs)
+  
+  return ok()
+  
+@csrf_exempt
 def mailer (request):
   if request.META['HTTP_X_APPENGINE_TASKRETRYCOUNT'] != '0':
     return ok()
@@ -64,12 +75,14 @@ def mailer (request):
       cmpgn.html,
       cmpgn.list_id,
       cmpgn.campaign_id,
+      cmpgn.from_name,
       cmpgn.salt,
     )
     
     logging.info('Mailer Task Started')
     rl = RateLimit(settings.MAIL_SEND_RATE, settings.MAIL_SEND_INTERVAL)
-    for edata in cmpgn.send_data[i]:
+    
+    for edata in cmpgn.send_data[i].get().data:
       if type(edata) == types.UnicodeType or type(edata) == types.StringType:
         email = edata
         context = {'request': request, 'email': edata}
@@ -124,7 +137,7 @@ def bouncer (request):
     b.campaign_id = found.group(2)
     b.put()
     
-    form_data = {'email': kwargs['original_to'], 'list_id': b.list_id, 'campaign_id': b.campaign_id}
+    form_data = {'email': kwargs['original_to'], 'list_id': b.list_id, 'campaign_id': b.campaign_id, 'type': 'bounce'}
     form_data.update(settings.REPORT_PAYLOAD)
     form_data = urllib.urlencode(form_data)
     result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -139,7 +152,7 @@ def amazon_bouncer (request):
     data = json.loads(request.body)
     
   except:
-    pass
+    logging.error(request.body)
   
   else:
     if data.has_key('Type'):
@@ -149,28 +162,30 @@ def amazon_bouncer (request):
       elif data['Type'] == 'UnsubscribeConfirmation':
         urlfetch.fetch(url=data['UnsubscribeURL'])
         
-    elif data.has_key('notificationType'):
-      if data['notificationType'] == 'Bounce':
-        for user in data['bounce']['bouncedRecipients']:
-          b = Bounce(btype='bounce', original_to=user['emailAddress'], raw_message=request.body)
-          b.put()
-          
-          form_data = {'email': b.original_to}
-          form_data.update(settings.REPORT_PAYLOAD)
-          form_data = urllib.urlencode(form_data)
-          result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-          logging.info('Bounce Report Status: ' + str(result.status_code))
-          
-      elif data['notificationType'] == 'Complaint':
-        for user in data['complaint']['complainedRecipients']:
-          b = Bounce(btype='complaint', original_to=user['emailAddress'], raw_message=request.body)
-          b.put()
-          
-          form_data = {'email': b.original_to}
-          form_data.update(settings.REPORT_PAYLOAD)
-          form_data = urllib.urlencode(form_data)
-          result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-          logging.info('Complaint Report Status: ' + str(result.status_code))
-            
+      elif data.has_key('Message'):
+        data = json.loads(data['Message'])
+        if data.has_key('notificationType'):
+          if data['notificationType'] == 'Bounce':
+            for user in data['bounce']['bouncedRecipients']:
+              b = Bounce(btype='bounce', original_to=user['emailAddress'], raw_message=request.body)
+              b.put()
+              
+              form_data = {'email': b.original_to, 'type': 'bounce'}
+              form_data.update(settings.REPORT_PAYLOAD)
+              form_data = urllib.urlencode(form_data)
+              result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+              logging.info('Bounce Report Status: ' + str(result.status_code))
+              
+          elif data['notificationType'] == 'Complaint':
+            for user in data['complaint']['complainedRecipients']:
+              b = Bounce(btype='complaint', original_to=user['emailAddress'], raw_message=request.body)
+              b.put()
+              
+              form_data = {'email': b.original_to, 'type': 'complaint'}
+              form_data.update(settings.REPORT_PAYLOAD)
+              form_data = urllib.urlencode(form_data)
+              result = urlfetch.fetch(url=settings.REPORT_BOUNCE_URL, payload=form_data, method=urlfetch.POST, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+              logging.info('Complaint Report Status: ' + str(result.status_code))
+              
   return ok()
   

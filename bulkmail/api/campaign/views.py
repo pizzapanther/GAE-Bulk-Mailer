@@ -10,13 +10,13 @@ from ...shortcuts import get_required, get_optional, ok
 from ...auth import key_required
 from ...exceptions import ApiException
 
-from ..models import Campaign, generate_salt
+from ..models import Campaign, SendData, generate_salt
 
 @csrf_exempt
 @key_required
 def campaign_create (request):
   required = ('subject', 'reply_to', 'list_id', 'campaign_id', 'text')
-  optional = ('html',)
+  optional = ('html', 'from_name')
   
   kwargs = get_required(request, required)
   kwargs.update(get_optional(request, optional))
@@ -45,7 +45,10 @@ def campaign_add_recipients (request):
     if len(json_data) > settings.LIST_LIMIT:
       raise ApiException('Recipient list too large, limit is %d' % settings.LIST_LIMIT)
       
-    cmpgn.send_data.append(json_data)
+    sd = SendData(data=json_data)
+    sd.put()
+    
+    cmpgn.send_data.append(sd.key)
     cmpgn.put()
     
     return ok()

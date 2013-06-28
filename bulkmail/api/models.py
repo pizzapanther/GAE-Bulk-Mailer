@@ -21,9 +21,14 @@ def generate_key ():
 def generate_salt (dt):
   return str(dt) + str(random.getrandbits(50))
   
+class SendData (ndb.Model):
+  data = ndb.JsonProperty(compressed=True)
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  
 class Campaign (ndb.Model):
   subject = ndb.StringProperty(required=True)
   reply_to = ndb.StringProperty(required=True)
+  from_name = ndb.StringProperty(required=False)
   
   html = ndb.TextProperty(required=False)
   text = ndb.TextProperty(required=True)
@@ -36,7 +41,7 @@ class Campaign (ndb.Model):
   sent = ndb.DateTimeProperty(required=False)
   send = ndb.DateTimeProperty(required=False)
   
-  send_data = ndb.JsonProperty(repeated=True, compressed=True)
+  send_data = ndb.KeyProperty(kind=SendData, repeated=True)
   
   salt = ndb.StringProperty(required=True)
   

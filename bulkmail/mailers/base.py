@@ -1,5 +1,7 @@
+import re
 import urllib
 import hashlib
+import logging
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -14,7 +16,7 @@ def emailer_key (*args):
   return hashlib.sha224(text).hexdigest()
   
 class BaseEmailer (object):
-  def __init__ (self, subject, reply_to, text_tpl, html_tpl, list_id, campaign_id, salt):
+  def __init__ (self, subject, reply_to, text_tpl, html_tpl, list_id, campaign_id, from_name, salt):
     self.subject = subject
     self.reply_to = reply_to
     self.text_tpl = text_tpl
@@ -24,6 +26,12 @@ class BaseEmailer (object):
     self.salt = salt
     
     self.urls = {}
+    
+    self.frm = settings.DEFAULT_FROM_EMAIL
+    if from_name:
+      self.frm = '%s <%s>' % (from_name, settings.DEFAULT_FROM_EMAIL)
+      
+    self.url_regex = re.compile(r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>\[\]]+|\(([^\s()<>\[\]]+|(\([^\s()<>\[\]]+\)))*\))+(?:\(([^\s()<>\[\]]+|(\([^\s()<>\[\]]+\)))*\)|[^\s`!(){};:'".,<>?\[\]]))""")
     
   def render (self, tpl, context, html=False):
     template = Template(tpl)
@@ -52,7 +60,28 @@ class BaseEmailer (object):
                 
       text = unicode(soup)
       
+    else:
+      text = self.url_regex.sub(self.process_match, text)
+      
     return text
+    
+  def process_match(self,  m):
+    href = m.group(0)
+    logging.info('URL: ' + href)
+    if href and href.startswith(('http://', 'https://')):
+      if not href.startswith(settings.BASE_URL):
+        if href in self.urls:
+          return self.urls[href]
+          
+        else:
+          url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
+          url.put()
+          new_url = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
+          self.urls[href] = new_url
+          
+          return new_url
+          
+    return href
     
   def generate_key (self, email):
     return emailer_key(email, self.list_id, self.campaign_id, self.salt)

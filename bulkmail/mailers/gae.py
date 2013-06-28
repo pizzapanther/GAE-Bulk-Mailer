@@ -11,7 +11,7 @@ class EMailer (BaseEmailer):
     context['unsubscribe'] = self.unsubscribe_url(email, key)
     
     message = mail.EmailMessage(
-      sender=settings.DEFAULT_FROM_EMAIL,
+      sender=self.frm,
       subject=self.subject,
       to=email,
       reply_to=self.reply_to,

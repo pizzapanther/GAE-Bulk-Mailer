@@ -5,14 +5,38 @@ import datetime
 import urllib
 import logging
 import traceback
+import json
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 
 from google.appengine.api import urlfetch
+from google.appengine.api import taskqueue
 
 from .base import BaseEmailer
 
+def amazon_send (**kwargs):
+  count = 0
+  email = kwargs['email']
+  del kwargs['email']
+  
+  while 1:
+    count += 1
+    
+    try:
+      urlfetch.fetch(**kwargs)
+      
+    except:
+      logging.error('Send Error: ' + email)
+      logging.error('Try: %d' % count)
+      logging.error(traceback.format_exc())
+      
+    else:
+      break
+      
+    if count >= 2:
+      break
+      
 class AmazonSES (object):
   def __init__ (self, access_id, access_key):
     self.access_id = access_id
@@ -27,9 +51,6 @@ class AmazonSES (object):
     
     self.headers['X-Amzn-Authorization'] = 'AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HMACSHA256, Signature=%s' % (access_id, signature)
     
-    #self.fetcher = urlfetch.create_rpc(deadline=60)
-    #self.requests = []
-    
   def signature (self, dateValue):
     h = hmac.new(key=self.access_key, msg=dateValue, digestmod=hashlib.sha256)
     return base64.b64encode(h.digest()).decode()
@@ -42,38 +63,17 @@ class AmazonSES (object):
     }
     form_data = urllib.urlencode(form_data)
     
-    #fetch = urlfetch.make_fetch_call(
-    #  self.fetcher,
-    #  'https://email.us-east-1.amazonaws.com/',
-    #  payload=form_data,
-    #  method=urlfetch.POST,
-    #  headers=self.headers,
-    #)
+    kwargs = {
+      'email': email,
+      'url': 'https://email.us-east-1.amazonaws.com/',
+      'payload': form_data,
+      'method': urlfetch.POST,
+      'headers': self.headers,
+      'deadline': 60,
+    }
     
-    result = urlfetch.fetch(
-      url='https://email.us-east-1.amazonaws.com/',
-      payload=form_data,
-      method=urlfetch.POST,
-      headers=self.headers,
-      deadline=2,
-    )
+    taskqueue.add(url='/amazon/send', params={'data': json.dumps(kwargs)}, queue_name='amazon')
     
-    #self.requests.append((email, fetch))
-    
-  def close (self):
-    for r in self.requests:
-      try:
-        result = r[1].get_result()
-        
-      except:
-        logging.error('Send Error: ' + r[0])
-        logging.error(traceback.format_exc())
-        
-      else:
-        if result.status_code != 200:
-          logging.error('Send Error: ' + r[0])
-          logging.error('Result: %d' % result.status_code)
-          
 class EMailer (BaseEmailer):
   def __init__ (self, *args, **kwargs):
     super(EMailer, self).__init__(*args, **kwargs)
@@ -90,7 +90,7 @@ class EMailer (BaseEmailer):
     msg = EmailMultiAlternatives(
       self.subject,
       self.render(self.text_tpl, context),
-      settings.DEFAULT_FROM_EMAIL,
+      self.frm,
       [email]
     )
     

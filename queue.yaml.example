@@ -7,3 +7,11 @@ queue:
     task_retry_limit: 0
     task_age_limit: 1s
     
+- name: amazon
+  rate: 14/s
+  bucket_size: 50
+  max_concurrent_requests: 14
+  retry_parameters:
+    task_retry_limit: 0
+    task_age_limit: 1s
+    
