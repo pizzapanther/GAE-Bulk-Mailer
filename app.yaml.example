@@ -6,6 +6,7 @@ threadsafe: true
 
 inbound_services:
 - mail_bounce
+- warmup
 
 handlers:
 - url: /favicon.ico

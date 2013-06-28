@@ -3,6 +3,8 @@ import base64
 import hashlib
 import datetime
 import urllib
+import logging
+import traceback
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -25,6 +27,9 @@ class AmazonSES (object):
     
     self.headers['X-Amzn-Authorization'] = 'AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HMACSHA256, Signature=%s' % (access_id, signature)
     
+    #self.fetcher = urlfetch.create_rpc(deadline=60)
+    #self.requests = []
+    
   def signature (self, dateValue):
     h = hmac.new(key=self.access_key, msg=dateValue, digestmod=hashlib.sha256)
     return base64.b64encode(h.digest()).decode()
@@ -37,6 +42,14 @@ class AmazonSES (object):
     }
     form_data = urllib.urlencode(form_data)
     
+    #fetch = urlfetch.make_fetch_call(
+    #  self.fetcher,
+    #  'https://email.us-east-1.amazonaws.com/',
+    #  payload=form_data,
+    #  method=urlfetch.POST,
+    #  headers=self.headers,
+    #)
+    
     result = urlfetch.fetch(
       url='https://email.us-east-1.amazonaws.com/',
       payload=form_data,
@@ -45,6 +58,22 @@ class AmazonSES (object):
       deadline=2,
     )
     
+    #self.requests.append((email, fetch))
+    
+  def close (self):
+    for r in self.requests:
+      try:
+        result = r[1].get_result()
+        
+      except:
+        logging.error('Send Error: ' + r[0])
+        logging.error(traceback.format_exc())
+        
+      else:
+        if result.status_code != 200:
+          logging.error('Send Error: ' + r[0])
+          logging.error('Result: %d' % result.status_code)
+          
 class EMailer (BaseEmailer):
   def __init__ (self, *args, **kwargs):
     super(EMailer, self).__init__(*args, **kwargs)
@@ -70,3 +99,7 @@ class EMailer (BaseEmailer):
       
     self.connection.send(email, msg.message().as_string())
     
+  def close (self):
+    #self.connection.close()
+    pass
+  
