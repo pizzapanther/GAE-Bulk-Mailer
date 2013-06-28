@@ -67,7 +67,6 @@ class BaseEmailer (object):
     
   def process_match(self,  m):
     href = m.group(0)
-    logging.info('URL: ' + href)
     if href and href.startswith(('http://', 'https://')):
       if not href.startswith(settings.BASE_URL):
         if href in self.urls:
