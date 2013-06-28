@@ -6,6 +6,7 @@ import types
 import importlib
 import urllib
 import json
+import traceback
 
 from django import http
 from django.conf import settings
@@ -53,7 +54,7 @@ def mailer (request):
   
   cmpgn = ndb.Key(urlsafe=ckey).get()
   if cmpgn:
-    if i == 0:
+    if cmpgn.completed == 0:
       cmpgn.sent = datetime.datetime.utcnow()
       cmpgn.put()
       
@@ -79,14 +80,21 @@ def mailer (request):
         context = {'request': request, 'email': edata[0]}
         context.update(edata[1])
         
-      emailer.send(email, context)
+      try:
+        emailer.send(email, context)
+        
+      except:
+        logging.error('Send Error: ' + email)
+        logging.error(traceback.format_exc())
+        
       rl.limit()
       
     emailer.close()
-    if i == len(cmpgn.send_data) - 1:
+    cmpgn.completed += 1
+    if cmpgn.completed == len(cmpgn.send_data):
       cmpgn.finished = datetime.datetime.utcnow()
-      cmpgn.put()
       
+    cmpgn.put()
     logging.info('Mailer Task Finished')
     return ok()
     

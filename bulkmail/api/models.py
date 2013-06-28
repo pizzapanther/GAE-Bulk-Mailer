@@ -41,6 +41,8 @@ class Campaign (ndb.Model):
   
   salt = ndb.StringProperty(required=True)
   
+  completed = ndb.IntegerProperty()
+  
 class Unsubscribe (ndb.Model):
   email = ndb.StringProperty()
   list_id = ndb.StringProperty()

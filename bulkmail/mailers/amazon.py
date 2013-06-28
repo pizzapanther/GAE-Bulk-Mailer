@@ -41,7 +41,8 @@ class AmazonSES (object):
       url='https://email.us-east-1.amazonaws.com/',
       payload=form_data,
       method=urlfetch.POST,
-      headers=self.headers
+      headers=self.headers,
+      deadline=2,
     )
     
 class EMailer (BaseEmailer):
