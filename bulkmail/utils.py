@@ -24,7 +24,6 @@ class RateLimit (object):
         if now - self.start >= datetime.timedelta(**self.interval):
           break
           
-      logging.info('Stopped Rate Limit')
       ret = True
       
     now = datetime.datetime.now()
