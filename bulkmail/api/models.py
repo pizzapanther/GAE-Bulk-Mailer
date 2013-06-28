@@ -34,14 +34,11 @@ class Campaign (ndb.Model):
   created = ndb.DateTimeProperty(auto_now_add=True)
   
   sent = ndb.DateTimeProperty(required=False)
-  finished = ndb.DateTimeProperty(required=False)
   send = ndb.DateTimeProperty(required=False)
   
   send_data = ndb.JsonProperty(repeated=True, compressed=True)
   
   salt = ndb.StringProperty(required=True)
-  
-  completed = ndb.IntegerProperty()
   
 class Unsubscribe (ndb.Model):
   email = ndb.StringProperty()

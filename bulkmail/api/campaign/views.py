@@ -62,6 +62,8 @@ def campaign_send (request):
     if cmpgn.sent:
       raise ApiException('Campaign sent already')
       
+    cmpgn.sent = datetime.datetime.utcnow()
+    cmpgn.put()
     for i in range(0, len(cmpgn.send_data)):
       taskqueue.add(url='/mailer', params={'ckey': cmpgn.key.urlsafe(), 'i': i}, queue_name='mail')
       

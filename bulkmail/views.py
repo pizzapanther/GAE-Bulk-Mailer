@@ -49,15 +49,14 @@ def unsubscribe (request, list_id, campaign_id):
   
 @csrf_exempt
 def mailer (request):
+  if request.META['HTTP_X_APPENGINE_TASKRETRYCOUNT'] != '0':
+    return ok()
+    
   ckey = request.POST.get('ckey')
   i = int(request.POST.get('i'))
   
   cmpgn = ndb.Key(urlsafe=ckey).get()
   if cmpgn:
-    if cmpgn.completed == 0:
-      cmpgn.sent = datetime.datetime.utcnow()
-      cmpgn.put()
-      
     emailer = EMailer(
       cmpgn.subject,
       cmpgn.reply_to,
@@ -90,11 +89,7 @@ def mailer (request):
       rl.limit()
       
     emailer.close()
-    cmpgn.completed += 1
-    if cmpgn.completed == len(cmpgn.send_data):
-      cmpgn.finished = datetime.datetime.utcnow()
-      
-    cmpgn.put()
+    
     logging.info('Mailer Task Finished')
     return ok()
     
