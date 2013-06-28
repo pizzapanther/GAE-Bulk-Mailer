@@ -114,10 +114,17 @@ ROOT_URLCONF = 'urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'bulkmail.wsgi.app'
 
-TEMPLATE_DIRS = ()
+TEMPLATE_DIRS = (
+  os.path.join(PPATH, 'templates')
+)
 
 INSTALLED_APPS = (
   
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+  "django.core.context_processors.debug",
+  "django.core.context_processors.request",
 )
 
 # A sample logging configuration. The only tangible logging
@@ -149,7 +156,7 @@ LOGGING = {
     }
 }
 
-LIST_LIMIT = 1000
+LIST_LIMIT = 300
 
 EMAILER = 'bulkmail.mailers.gae'
 MAIL_SEND_RATE = 5100

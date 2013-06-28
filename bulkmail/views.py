@@ -63,6 +63,7 @@ def mailer (request):
       cmpgn.salt,
     )
     
+    logging.info('Mailer Task Started')
     rl = RateLimit(settings.MAIL_SEND_RATE, settings.MAIL_SEND_INTERVAL)
     for elist in cmpgn.send_data:
       for edata in elist:
@@ -75,15 +76,13 @@ def mailer (request):
           context = {'request': request, 'email': edata[0]}
           context.update(edata[1])
           
-        logging.info(email)
-        
         emailer.send(email, context)
         rl.limit()
         
     emailer.close()
     cmpgn.finished = datetime.datetime.utcnow()
     cmpgn.put()
-    
+    logging.info('Mailer Task Finished')
     return ok()
     
   raise Exception('Unknown Campaign')
