@@ -62,7 +62,9 @@ def campaign_send (request):
     if cmpgn.sent:
       raise ApiException('Campaign sent already')
       
-    taskqueue.add(url='/mailer', params={'ckey': cmpgn.key.urlsafe()}, queue_name='mail')
+    for i in range(0, len(cmpgn.send_data)):
+      taskqueue.add(url='/mailer', params={'ckey': cmpgn.key.urlsafe(), 'i': i}, queue_name='mail')
+      
     return ok()
     
   raise ApiException('Unknown Campaign with list_id and campaign_id')

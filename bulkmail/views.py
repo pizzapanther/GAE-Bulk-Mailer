@@ -49,10 +49,14 @@ def unsubscribe (request, list_id, campaign_id):
 @csrf_exempt
 def mailer (request):
   ckey = request.POST.get('ckey')
+  i = int(request.POST.get('i'))
+  
   cmpgn = ndb.Key(urlsafe=ckey).get()
   if cmpgn:
-    cmpgn.sent = datetime.datetime.utcnow()
-    cmpgn.put()
+    if i == 0:
+      cmpgn.sent = datetime.datetime.utcnow()
+      cmpgn.put()
+      
     emailer = EMailer(
       cmpgn.subject,
       cmpgn.reply_to,
@@ -65,23 +69,24 @@ def mailer (request):
     
     logging.info('Mailer Task Started')
     rl = RateLimit(settings.MAIL_SEND_RATE, settings.MAIL_SEND_INTERVAL)
-    for elist in cmpgn.send_data:
-      for edata in elist:
-        if type(edata) == types.UnicodeType or type(edata) == types.StringType:
-          email = edata
-          context = {'request': request, 'email': edata}
-          
-        else:
-          email = edata[0]
-          context = {'request': request, 'email': edata[0]}
-          context.update(edata[1])
-          
-        emailer.send(email, context)
-        rl.limit()
+    for edata in cmpgn.send_data[i]:
+      if type(edata) == types.UnicodeType or type(edata) == types.StringType:
+        email = edata
+        context = {'request': request, 'email': edata}
         
+      else:
+        email = edata[0]
+        context = {'request': request, 'email': edata[0]}
+        context.update(edata[1])
+        
+      emailer.send(email, context)
+      rl.limit()
+      
     emailer.close()
-    cmpgn.finished = datetime.datetime.utcnow()
-    cmpgn.put()
+    if i == len(cmpgn.send_data) - 1:
+      cmpgn.finished = datetime.datetime.utcnow()
+      cmpgn.put()
+      
     logging.info('Mailer Task Finished')
     return ok()
     
