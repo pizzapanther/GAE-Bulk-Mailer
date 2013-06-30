@@ -91,7 +91,8 @@ class EMailer (BaseEmailer):
       self.subject,
       self.render(self.text_tpl, context),
       self.frm,
-      [email]
+      [email],
+      headers=headers
     )
     
     if self.html_tpl:
