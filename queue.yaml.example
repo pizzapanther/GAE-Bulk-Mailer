@@ -1,17 +1,18 @@
-total_storage_limit: 2G
+total_storage_limit: 5G
 queue:
 - name: mail
-  rate: 1/s
-  max_concurrent_requests: 1
+  rate: 50/s
+  bucket_size: 100
+  max_concurrent_requests: 10
   retry_parameters:
-    task_retry_limit: 0
-    task_age_limit: 1s
+    task_retry_limit: 3
+    task_age_limit: 20m
     
 - name: amazon
   rate: 14/s
-  bucket_size: 50
+  bucket_size: 100
   max_concurrent_requests: 14
   retry_parameters:
-    task_retry_limit: 0
-    task_age_limit: 1s
+    task_retry_limit: 2
+    task_age_limit: 2m
     

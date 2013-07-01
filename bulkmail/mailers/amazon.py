@@ -80,6 +80,9 @@ class EMailer (BaseEmailer):
     self.connection = AmazonSES(settings.AWS_KEY_ID, settings.AWS_SECRET_KEY)
     
   def send (self, email, context):
+    if self.skip(email):
+      return None
+      
     key = self.generate_key(email)
     context['key'] = key
     context['unsubscribe'] = self.unsubscribe_url(email, key)
@@ -99,6 +102,7 @@ class EMailer (BaseEmailer):
       msg.attach_alternative(self.render(self.html_tpl, context, True), "text/html")
       
     self.connection.send(email, msg.message().as_string())
+    self.log_send(email)
     
   def close (self):
     #self.connection.close()

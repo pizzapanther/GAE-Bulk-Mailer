@@ -10,6 +10,7 @@ from jinja2 import Template
 from bs4 import BeautifulSoup
 
 from ..tracking.models import Url
+from ..api.models import SendLog
 
 def emailer_key (*args):
   text = ':'.join(args)
@@ -99,6 +100,21 @@ class BaseEmailer (object):
     
   def send (self, email, context):
     raise NotImplementedError
+    
+  def skip (self, email):
+    if SendLog.query(
+        SendLog.email == email,
+        SendLog.campaign_id == self.campaign_id,
+        SendLog.list_id == self.list_id
+      ).count() > 0:
+      logging.info('Skipping already sent: %s, Campaign: %s, List: %s' % (email, self.campaign_id, self.list_id))
+      return True
+      
+    return False
+    
+  def log_send (self, email):
+    sl = SendLog(email=email, campaign_id=self.campaign_id, list_id=self.list_id)
+    sl.put()
     
   def close (self):
     pass

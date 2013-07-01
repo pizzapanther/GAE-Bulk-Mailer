@@ -50,9 +50,6 @@ def unsubscribe (request, list_id, campaign_id):
   
 @csrf_exempt
 def amazon_sender (request):
-  if request.META['HTTP_X_APPENGINE_TASKRETRYCOUNT'] != '0':
-    return ok()
-    
   kwargs = json.loads(request.POST.get('data'))
   amazon_send(**kwargs)
   
@@ -60,9 +57,6 @@ def amazon_sender (request):
   
 @csrf_exempt
 def mailer (request):
-  if request.META['HTTP_X_APPENGINE_TASKRETRYCOUNT'] != '0':
-    return ok()
-    
   ckey = request.POST.get('ckey')
   i = int(request.POST.get('i'))
   

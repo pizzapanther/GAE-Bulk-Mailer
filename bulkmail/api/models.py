@@ -21,6 +21,13 @@ def generate_key ():
 def generate_salt (dt):
   return str(dt) + str(random.getrandbits(50))
   
+class SendLog (ndb.Model):
+  email = ndb.StringProperty()
+  list_id = ndb.StringProperty(required=True)
+  campaign_id = ndb.StringProperty(required=True)
+  
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  
 class SendData (ndb.Model):
   data = ndb.JsonProperty(compressed=True)
   created = ndb.DateTimeProperty(auto_now_add=True)

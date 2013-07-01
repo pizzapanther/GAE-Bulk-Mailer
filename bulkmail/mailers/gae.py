@@ -6,6 +6,9 @@ from .base import BaseEmailer
 
 class EMailer (BaseEmailer):
   def send (self, email, context):
+    if self.skip(email):
+      return None
+      
     key = self.generate_key(email)
     context['key'] = key
     context['unsubscribe'] = self.unsubscribe_url(email, key)
@@ -23,4 +26,5 @@ class EMailer (BaseEmailer):
       message.html = self.render(self.html_tpl, context, True)
       
     message.send()
+    self.log_send(email)
     
