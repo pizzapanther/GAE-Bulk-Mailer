@@ -8,5 +8,6 @@ urlpatterns = patterns('bulkmail.api.views',
 urlpatterns += patterns('bulkmail.api.campaign.views',
   url(r'^campaign/create/$', 'campaign_create', name='campaign_create'),
   url(r'^campaign/add_recipients/$', 'campaign_add_recipients', name='campaign_add_recipients'),
+  url(r'^campaign/send/test/$', 'campaign_send_test', name='campaign_send_test'),
   url(r'^campaign/send/$', 'campaign_send', name='campaign_send'),
 )

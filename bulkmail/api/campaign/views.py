@@ -1,5 +1,8 @@
 import json
+import types
 import datetime
+import logging
+import importlib
 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +14,9 @@ from ...auth import key_required
 from ...exceptions import ApiException
 
 from ..models import Campaign, SendData, generate_salt
+
+imp = importlib.import_module(settings.EMAILER)
+EMailer = imp.EMailer
 
 @csrf_exempt
 @key_required
@@ -73,4 +79,65 @@ def campaign_send (request):
     return ok()
     
   raise ApiException('Unknown Campaign with list_id and campaign_id')
+  
+@csrf_exempt
+@key_required
+def campaign_send_test (request):
+  required = ('subject', 'reply_to', 'list_id', 'campaign_id', 'text', 'test_emails')
+  optional = ('html', 'from_name')
+  
+  kwargs = get_required(request, required)
+  kwargs.update(get_optional(request, optional))
+  kwargs['salt'] = generate_salt(datetime.datetime.utcnow())
+  
+  emails = json.loads(kwargs['test_emails'])
+  del kwargs['test_emails']
+  kwargs['campaign_id'] = kwargs['campaign_id'] + '-test'
+  kwargs['list_id'] = kwargs['list_id'] + '-test'
+  
+  cmpgn = Campaign.query(Campaign.campaign_id == kwargs['campaign_id'], Campaign.list_id == kwargs['list_id']).get()
+  if cmpgn:
+    for r in required:
+      if kwargs.has_key(r):
+        setattr(cmpgn, r, kwargs[r])
+        
+    for r in optional:
+      if kwargs.has_key(r):
+        setattr(cmpgn, r, kwargs[r])
+        
+    cmpgn.put()
+    
+  else:
+    cmpgn = Campaign(**kwargs)
+    cmpgn.put()
+    
+  emailer = EMailer(
+    cmpgn.subject,
+    cmpgn.reply_to,
+    cmpgn.text,
+    cmpgn.html,
+    cmpgn.list_id,
+    cmpgn.campaign_id,
+    cmpgn.from_name,
+    cmpgn.salt,
+  )
+  
+  for edata in emails:
+    if type(edata) == types.UnicodeType or type(edata) == types.StringType:
+      email = edata
+      context = {'request': request, 'email': edata}
+      
+    else:
+      email = edata[0]
+      context = {'request': request, 'email': edata[0]}
+      context.update(edata[1])
+      
+    try:
+      emailer.send(email, context, log=False)
+      
+    except:
+      logging.error('Send Error: ' + email)
+      logging.error(traceback.format_exc())
+      
+  return ok()
   

@@ -98,7 +98,7 @@ class BaseEmailer (object):
     }
     return h
     
-  def send (self, email, context):
+  def send (self, email, context, log=True):
     raise NotImplementedError
     
   def skip (self, email):

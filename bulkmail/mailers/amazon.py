@@ -79,7 +79,7 @@ class EMailer (BaseEmailer):
     super(EMailer, self).__init__(*args, **kwargs)
     self.connection = AmazonSES(settings.AWS_KEY_ID, settings.AWS_SECRET_KEY)
     
-  def send (self, email, context):
+  def send (self, email, context, log=True):
     if self.skip(email):
       return None
       
@@ -102,8 +102,10 @@ class EMailer (BaseEmailer):
       msg.attach_alternative(self.render(self.html_tpl, context, True), "text/html")
       
     self.connection.send(email, msg.message().as_string())
-    self.log_send(email)
     
+    if log:
+      self.log_send(email)
+      
   def close (self):
     #self.connection.close()
     pass

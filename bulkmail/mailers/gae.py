@@ -5,7 +5,7 @@ from google.appengine.api import mail
 from .base import BaseEmailer
 
 class EMailer (BaseEmailer):
-  def send (self, email, context):
+  def send (self, email, context, log=True):
     if self.skip(email):
       return None
       
@@ -26,5 +26,7 @@ class EMailer (BaseEmailer):
       message.html = self.render(self.html_tpl, context, True)
       
     message.send()
-    self.log_send(email)
     
+    if log:
+      self.log_send(email)
+      
