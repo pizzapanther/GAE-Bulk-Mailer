@@ -40,7 +40,8 @@ def verify_email (target):
             return target(*args, **kwargs)
             
           else:
-            return target(request, obj, email, **kwargs)
+            kwargs['email'] = email
+            return target(request, obj, **kwargs)
             
     return target(request, obj, **kwargs)
     
