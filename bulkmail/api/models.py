@@ -52,6 +52,8 @@ class Campaign (ndb.Model):
   
   salt = ndb.StringProperty(required=True)
   
+  analytics = ndb.StringProperty(required=False)
+  
 class Unsubscribe (ndb.Model):
   email = ndb.StringProperty()
   list_id = ndb.StringProperty()

@@ -22,7 +22,7 @@ EMailer = imp.EMailer
 @key_required
 def campaign_create (request):
   required = ('subject', 'reply_to', 'list_id', 'campaign_id', 'text')
-  optional = ('html', 'from_name')
+  optional = ('html', 'from_name', 'analytics')
   
   kwargs = get_required(request, required)
   kwargs.update(get_optional(request, optional))

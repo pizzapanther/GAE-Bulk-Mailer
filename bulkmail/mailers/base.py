@@ -17,7 +17,7 @@ def emailer_key (*args):
   return hashlib.sha224(text).hexdigest()
   
 class BaseEmailer (object):
-  def __init__ (self, subject, reply_to, text_tpl, html_tpl, list_id, campaign_id, from_name, salt):
+  def __init__ (self, subject, reply_to, text_tpl, html_tpl, list_id, campaign_id, from_name, salt, analytics):
     self.subject = subject
     self.reply_to = reply_to
     self.text_tpl = text_tpl
@@ -25,6 +25,7 @@ class BaseEmailer (object):
     self.list_id = list_id
     self.campaign_id = campaign_id
     self.salt = salt
+    self.analytics = analytics
     
     self.urls = {}
     
@@ -57,11 +58,22 @@ class BaseEmailer (object):
           href = link.get(attr)
           if href and href.startswith(('http://', 'https://')):
             if not href.startswith(settings.BASE_URL):
+              if tag == 'a' and self.analytics:
+                if '?' in href:
+                  if href.endswith('?'):
+                    href += self.analytics
+                    
+                  else:
+                    href += '&' + self.analytics
+                    
+                else:
+                  href += '?' + self.analytics
+                  
               if href in self.urls:
                 link[attr] = self.urls[href]
                 
               else:
-                url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
+                url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag)
                 url.put()
                 new_url = '%s%s?email=%s&key=%s' % (
                   settings.BASE_URL,
@@ -87,11 +99,22 @@ class BaseEmailer (object):
     href = m.group(0)
     if href and href.startswith(('http://', 'https://')):
       if not href.startswith(settings.BASE_URL):
+        if self.analytics:
+          if '?' in href:
+            if href.endswith('?'):
+              href += self.analytics
+              
+            else:
+              href += '&' + self.analytics
+              
+          else:
+            href += '?' + self.analytics
+            
         if href in self.urls:
           return self.urls[href]
           
         else:
-          url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
+          url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag='text_link')
           url.put()
           
           new_url = '%s%s?email=%s&key=%s' % (

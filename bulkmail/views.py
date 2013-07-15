@@ -71,6 +71,7 @@ def mailer (request):
       cmpgn.campaign_id,
       cmpgn.from_name,
       cmpgn.salt,
+      cmpgn.analytics,
     )
     
     logging.info('Mailer Task Started')

@@ -6,6 +6,7 @@ import urllib
 import logging
 import traceback
 import json
+import time
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -24,7 +25,7 @@ def amazon_send (**kwargs):
     count += 1
     
     try:
-      urlfetch.fetch(**kwargs)
+      result = urlfetch.fetch(**kwargs)
       
     except:
       logging.error('Send Error: ' + email)
@@ -32,8 +33,15 @@ def amazon_send (**kwargs):
       logging.error(traceback.format_exc())
       
     else:
-      break
-      
+      if result.status_code == 200:
+        break
+        
+      else:
+        logging.error('Send Error: ' + email)
+        logging.error('Try: %d' % count)
+        logging.error('Status Code: %d' % result.status_code)
+        
+    time.sleep(2)
     if count >= 2:
       break
       

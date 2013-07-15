@@ -55,7 +55,17 @@ def open_pixel (request, list_id, campaign_id, email=None):
   
 @verify_email
 def url_redirect (request, url, email):
-  t = Track(ttype='click', list_id=url.list_id, campaign_id=url.campaign_id, email=email.lower())
+  ttype = 'click'
+  if url.html_tag == 'img':
+    ttype = 'image'
+    
+  t = Track(
+    ttype=ttype,
+    list_id=url.list_id,
+    campaign_id=url.campaign_id,
+    email=email.lower(),
+    url=url.key
+  )
   t.put()
   
   return http.HttpResponseRedirect(url.url)
