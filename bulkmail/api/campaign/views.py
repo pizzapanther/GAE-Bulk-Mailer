@@ -120,6 +120,7 @@ def campaign_send_test (request):
     cmpgn.campaign_id,
     cmpgn.from_name,
     cmpgn.salt,
+    None
   )
   
   for edata in emails:
