@@ -41,10 +41,12 @@ def amazon_send (**kwargs):
         logging.error('Try: %d' % count)
         logging.error('Status Code: %d' % result.status_code)
         
-    time.sleep(2)
-    if count >= 2:
-      break
+    if count >= 3:
+      logging.error(kwargs)
+      raise Exception("Send Failed")
       
+    time.sleep(2)
+    
 class AmazonSES (object):
   def __init__ (self, access_id, access_key):
     self.access_id = access_id

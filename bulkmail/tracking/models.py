@@ -8,7 +8,7 @@ class Url (ndb.Model):
   list_id = ndb.StringProperty()
   campaign_id = ndb.StringProperty()
   
-  tags = ndb.StringProperty(repeated=True)
+  tags = ndb.StringProperty(repeated=True, required=False)
   
   created = ndb.DateTimeProperty(auto_now_add=True)
   
@@ -21,7 +21,7 @@ class Track (ndb.Model):
   email = ndb.StringProperty()
   url = ndb.KeyProperty(kind=Url, required=False)
   
-  tags = ndb.StringProperty(repeated=True)
+  tags = ndb.StringProperty(repeated=True, required=False)
   
   created = ndb.DateTimeProperty(auto_now_add=True)
   

@@ -27,13 +27,23 @@ class BaseEmailer (object):
     self.salt = salt
     self.analytics = analytics
     
-    self.urls = {}
+    self.text_urls = {}
+    self.html_urls = {}
     
     self.frm = settings.DEFAULT_FROM_EMAIL
     if from_name:
       self.frm = '%s <%s>' % (from_name, settings.DEFAULT_FROM_EMAIL)
       
     self.url_regex = re.compile(r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>\[\]]+|\(([^\s()<>\[\]]+|(\([^\s()<>\[\]]+\)))*\))+(?:\(([^\s()<>\[\]]+|(\([^\s()<>\[\]]+\)))*\)|[^\s`!(){};:'".,<>?\[\]]))""")
+    
+  def get_tags (self, href):
+    tags = []
+    found = re.search("#bmtags:(.*)", href, re.I)
+    if found:
+      href = re.sub("#bmtags:(.*)", "", href, flags=re.I)
+      tags = re.split("\s*,\s*", found.group(1))
+      
+    return href, tags
     
   def render (self, tpl, context, html=False):
     template = Template(tpl)
@@ -58,6 +68,8 @@ class BaseEmailer (object):
           href = link.get(attr)
           if href and href.startswith(('http://', 'https://')):
             if not href.startswith(settings.BASE_URL):
+              href, tags = self.get_tags(href)
+              
               if tag == 'a' and self.analytics:
                 if '?' in href:
                   if href.endswith('?'):
@@ -69,19 +81,22 @@ class BaseEmailer (object):
                 else:
                   href += '?' + self.analytics
                   
-              if href in self.urls:
-                link[attr] = self.urls[href]
+              if href in self.html_urls:
+                link[attr] = self.html_urls[href]
                 
               else:
-                url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag)
+                url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag, tags=tags)
                 url.put()
+                logging.info(tags)
+                logging.info(url.key)
+                
                 new_url = '%s%s?email=%s&key=%s' % (
                   settings.BASE_URL,
                   reverse('url_redirect', args=(url.key.urlsafe(),)),
                   urllib.quote(context['email']),
                   urllib.quote(context['key'])
                 )
-                self.urls[href] = new_url
+                self.html_urls[href] = new_url
                 link[attr] = new_url
                 
       soup.body.append(pixel_tag)
@@ -99,6 +114,8 @@ class BaseEmailer (object):
     href = m.group(0)
     if href and href.startswith(('http://', 'https://')):
       if not href.startswith(settings.BASE_URL):
+        href, tags = self.get_tags(href)
+        
         if self.analytics:
           if '?' in href:
             if href.endswith('?'):
@@ -110,11 +127,11 @@ class BaseEmailer (object):
           else:
             href += '?' + self.analytics
             
-        if href in self.urls:
-          return self.urls[href]
+        if href in self.text_urls:
+          return self.text_urls[href]
           
         else:
-          url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag='text_link')
+          url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag='text_link', tags=tags)
           url.put()
           
           new_url = '%s%s?email=%s&key=%s' % (
@@ -123,7 +140,7 @@ class BaseEmailer (object):
             urllib.quote(context['email']),
             urllib.quote(context['key'])
           )
-          self.urls[href] = new_url
+          self.text_urls[href] = new_url
           
           return new_url
           

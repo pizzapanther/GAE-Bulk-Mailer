@@ -42,7 +42,7 @@ def verify_email (target):
           else:
             return target(request, obj, email, **kwargs)
             
-    raise http.Http404
+    return target(request, obj, **kwargs)
     
   return wrapper
   
@@ -54,19 +54,21 @@ def open_pixel (request, list_id, campaign_id, email=None):
   return http.HttpResponse(TRANSPARENT_1_PIXEL_GIF, content_type='image/gif')
   
 @verify_email
-def url_redirect (request, url, email):
+def url_redirect (request, url, email=None):
   ttype = 'click'
   if url.html_tag == 'img':
     ttype = 'image'
     
-  t = Track(
-    ttype=ttype,
-    list_id=url.list_id,
-    campaign_id=url.campaign_id,
-    email=email.lower(),
-    url=url.key
-  )
-  t.put()
-  
+  if email:
+    t = Track(
+      ttype=ttype,
+      list_id=url.list_id,
+      campaign_id=url.campaign_id,
+      email=email.lower(),
+      url=url.key,
+      tags=url.tags,
+    )
+    t.put()
+    
   return http.HttpResponseRedirect(url.url)
   
