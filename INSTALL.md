@@ -24,4 +24,9 @@
 ``AWS_SECRET_KEY = 'abcdefgh123456'``
 7. Upload your app: ``cd ..; appcfg.py update your-app-id``
 8. Go to https://your-app-id.appspot.com/api/apikey/ to create an API Key.
+9. Implement the bounce and unsubscribe hooks you provided.  See the API 
+[API Documentation](docs/api.md) for more info.
 
+### More Info
+* For info about the API see the [API Documentation](docs/api.md)
+* For info about the API implemented in Python see the [Bulkmailer.py Documentation](docs/bulkmailer.md)
