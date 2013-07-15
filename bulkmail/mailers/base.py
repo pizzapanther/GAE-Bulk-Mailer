@@ -44,6 +44,14 @@ class BaseEmailer (object):
         'img': 'src',
       }
       
+      pixel_url = '%s%s?email=%s&key=%s' % (
+        settings.BASE_URL,
+        reverse('open_pixel', args=(self.list_id, self.campaign_id)),
+        urllib.quote(context['email']),
+        urllib.quote(context['key'])
+      )
+      pixel_tag = soup.new_tag("img", src=pixel_url)
+      
       for tag, attr in soupers.items():
         for link in soup.find_all(tag):
           href = link.get(attr)
@@ -55,18 +63,27 @@ class BaseEmailer (object):
               else:
                 url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
                 url.put()
-                new_url = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
+                new_url = '%s%s?email=%s&key=%s' % (
+                  settings.BASE_URL,
+                  reverse('url_redirect', args=(url.key.urlsafe(),)),
+                  urllib.quote(context['email']),
+                  urllib.quote(context['key'])
+                )
                 self.urls[href] = new_url
                 link[attr] = new_url
                 
+      soup.body.append(pixel_tag)
       text = unicode(soup)
       
     else:
-      text = self.url_regex.sub(self.process_match, text)
+      def pm (m):
+        return self.process_match(m, context)
+        
+      text = self.url_regex.sub(pm, text)
       
     return text
     
-  def process_match(self,  m):
+  def process_match (self,  m, context):
     href = m.group(0)
     if href and href.startswith(('http://', 'https://')):
       if not href.startswith(settings.BASE_URL):
@@ -76,7 +93,13 @@ class BaseEmailer (object):
         else:
           url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id)
           url.put()
-          new_url = '%s%s' % (settings.BASE_URL, reverse('url_redirect', args=(url.key.urlsafe(),)))
+          
+          new_url = '%s%s?email=%s&key=%s' % (
+            settings.BASE_URL,
+            reverse('url_redirect', args=(url.key.urlsafe(),)),
+            urllib.quote(context['email']),
+            urllib.quote(context['key'])
+          )
           self.urls[href] = new_url
           
           return new_url
