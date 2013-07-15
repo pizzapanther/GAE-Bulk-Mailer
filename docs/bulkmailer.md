@@ -8,7 +8,9 @@
 import bulkmailer
 
 ...
-
+BMAIL_HOST = 'your-app-id.appspot.com'
+BMAIL_KEY = '...'
+USE_SSL = True
 bm = bulkmailer.Api(BMAIL_HOST, BMAIL_KEY, USE_SSL)
 payload = {
   'subject': "E-Mail Subject",
