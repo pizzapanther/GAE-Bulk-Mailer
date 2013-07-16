@@ -87,8 +87,6 @@ class BaseEmailer (object):
               else:
                 url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag, tags=tags)
                 url.put()
-                logging.info(tags)
-                logging.info(url.key)
                 
                 new_url = '%s%s?email=%s&key=%s' % (
                   settings.BASE_URL,

@@ -16,10 +16,27 @@ from google.appengine.api import taskqueue
 
 from .base import BaseEmailer
 
+def signature (access_key, dateValue):
+  h = hmac.new(key=str(access_key), msg=dateValue, digestmod=hashlib.sha256)
+  return base64.b64encode(h.digest()).decode()
+  
 def amazon_send (**kwargs):
   count = 0
   email = kwargs['email']
   del kwargs['email']
+  
+  access_key = kwargs['access_key']
+  del kwargs['access_key']
+  
+  access_id = kwargs['access_id']
+  del kwargs['access_id']
+  
+  d = datetime.datetime.utcnow()
+  dateValue = d.strftime('%a, %d %b %Y %H:%M:%S GMT')
+  kwargs['headers']['Date'] = dateValue
+  sig = signature(access_key, dateValue)
+  
+  kwargs['headers']['X-Amzn-Authorization'] = 'AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HMACSHA256, Signature=%s' % (access_id, sig)
   
   while 1:
     count += 1
@@ -47,7 +64,7 @@ def amazon_send (**kwargs):
       
       raise Exception("Send Failed")
       
-    time.sleep(2)
+    time.sleep(1)
     
 class AmazonSES (object):
   def __init__ (self, access_id, access_key):
@@ -55,17 +72,6 @@ class AmazonSES (object):
     self.access_key = access_key
     
     self.headers = { 'Content-type': 'application/x-www-form-urlencoded' }
-    
-    d = datetime.datetime.utcnow()
-    dateValue = d.strftime('%a, %d %b %Y %H:%M:%S GMT')
-    self.headers['Date'] = dateValue
-    signature = self.signature(dateValue)
-    
-    self.headers['X-Amzn-Authorization'] = 'AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HMACSHA256, Signature=%s' % (access_id, signature)
-    
-  def signature (self, dateValue):
-    h = hmac.new(key=self.access_key, msg=dateValue, digestmod=hashlib.sha256)
-    return base64.b64encode(h.digest()).decode()
     
   def send (self, email, raw_message):
     form_data = {
@@ -77,6 +83,8 @@ class AmazonSES (object):
     
     kwargs = {
       'email': email,
+      'access_key': self.access_key,
+      'access_id': self.access_id,
       'url': 'https://email.us-east-1.amazonaws.com/',
       'payload': form_data,
       'method': urlfetch.POST,
