@@ -18,7 +18,7 @@ class Track (ndb.Model):
   list_id = ndb.StringProperty()
   campaign_id = ndb.StringProperty()
   
-  email = ndb.StringProperty()
+  email = ndb.StringProperty(required=False)
   url = ndb.KeyProperty(kind=Url, required=False)
   
   tags = ndb.StringProperty(repeated=True, required=False)

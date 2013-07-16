@@ -43,15 +43,24 @@ def verify_email (target):
             kwargs['email'] = email
             return target(request, obj, **kwargs)
             
+    
+    if len(args) == 3:
+      return target(*args, **kwargs)
+      
     return target(request, obj, **kwargs)
     
   return wrapper
   
 @verify_email
 def open_pixel (request, list_id, campaign_id, email=None):
-  t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower())
+  if email:
+    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower())
+    
+  else:
+    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id)
+    
   t.put()
-  
+    
   return http.HttpResponse(TRANSPARENT_1_PIXEL_GIF, content_type='image/gif')
   
 @verify_email
@@ -69,7 +78,17 @@ def url_redirect (request, url, email=None):
       url=url.key,
       tags=url.tags,
     )
-    t.put()
+    
+  else:
+    t = Track(
+      ttype=ttype,
+      list_id=url.list_id,
+      campaign_id=url.campaign_id,
+      url=url.key,
+      tags=url.tags,
+    )
+    
+  t.put()
     
   return http.HttpResponseRedirect(url.url)
   
