@@ -40,9 +40,11 @@ def amazon_send (**kwargs):
         logging.error('Send Error: ' + email)
         logging.error('Try: %d' % count)
         logging.error('Status Code: %d' % result.status_code)
+        logging.error(result.content)
         
     if count >= 3:
       logging.error(kwargs)
+      
       raise Exception("Send Failed")
       
     time.sleep(2)
