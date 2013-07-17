@@ -3,6 +3,7 @@ import random
 import hashlib
 
 from ..utils import cached_method
+from ..tracking.models import Stats
 
 from google.appengine.ext import ndb
 
@@ -58,11 +59,12 @@ class Campaign (ndb.Model):
   
   @cached_method
   def stats (self):
-    return {
-      'clicks': [[1196463600000, 0], [1196550000000, 0], [1196636400000, 0], [1196722800000, 77], [1196809200000, 3636], [1196895600000, 3575]],
-      'total_clicks': 10,
-      'total_opens': 20,
-    }
+    return Stats.query(Stats.list_id == self.list_id, Stats.campaign_id == self.campaign_id).get()
+    #return {
+    #  'clicks': [[1196463600000, 0], [1196550000000, 0], [1196636400000, 0], [1196722800000, 77], [1196809200000, 3636], [1196895600000, 3575]],
+    #  'total_clicks': 10,
+    #  'total_opens': 20,
+    #}
     
 class Unsubscribe (ndb.Model):
   email = ndb.StringProperty()

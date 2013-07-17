@@ -13,6 +13,12 @@ class Url (ndb.Model):
   
   created = ndb.DateTimeProperty(auto_now_add=True)
   
+class Stats (ndb.Model):
+  list_id = ndb.StringProperty()
+  campaign_id = ndb.StringProperty()
+  
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  
 class Track (ndb.Model):
   ttype = ndb.StringProperty() #open, click, image
   
