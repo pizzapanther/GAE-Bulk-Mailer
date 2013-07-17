@@ -51,20 +51,31 @@ def verify_email (target):
     
   return wrapper
   
+def ua_string (request):
+  if request.META.has_key('HTTP_USER_AGENT'):
+    return request.META['HTTP_USER_AGENT']
+    
+  return None
+  
 @verify_email
 def open_pixel (request, list_id, campaign_id, email=None):
+  ua = ua_string(request)
+  
   if email:
-    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower())
+    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower(), user_agent=ua)
     
   else:
     t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id)
     
+  t.detect_browser()
   t.put()
-    
+  
   return http.HttpResponse(TRANSPARENT_1_PIXEL_GIF, content_type='image/gif')
   
 @verify_email
 def url_redirect (request, url, email=None):
+  ua = ua_string(request)
+  
   ttype = 'click'
   if url.html_tag == 'img':
     ttype = 'image'
@@ -77,6 +88,7 @@ def url_redirect (request, url, email=None):
       email=email.lower(),
       url=url.key,
       tags=url.tags,
+      user_agent=ua,
     )
     
   else:
@@ -86,9 +98,11 @@ def url_redirect (request, url, email=None):
       campaign_id=url.campaign_id,
       url=url.key,
       tags=url.tags,
+      user_agent=ua,
     )
     
+  t.detect_browser()
   t.put()
-    
+  
   return http.HttpResponseRedirect(url.url)
   

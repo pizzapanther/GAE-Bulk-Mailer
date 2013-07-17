@@ -173,7 +173,10 @@ AWS_KEY_ID = ''
 AWS_SECRET_KEY = ''
 
 from jinja2 import Environment, PackageLoader
-TPL_ENV = Environment(loader=PackageLoader('bulkmail', 'templates'))
+TPL_ENV = Environment(
+  loader=PackageLoader('bulkmail', 'templates'),
+  extensions=['jinja2.ext.with_']
+)
 
 try:
   from local_settings import *

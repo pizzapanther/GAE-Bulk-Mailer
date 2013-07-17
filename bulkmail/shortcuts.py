@@ -5,9 +5,15 @@ from django.conf import settings
 
 from .exceptions import ParameterRequired
 
+def static_url (path):
+  return settings.BASE_URL + settings.STATIC_URL + path
+  
 def render_tpl (request, tpl, context):
   template = settings.TPL_ENV.get_template(tpl)
   context['request'] = request
+  context['static'] = static_url
+  context['DEBUG'] = settings.DEBUG
+  
   content = template.render(**context)
   return http.HttpResponse(content)
   

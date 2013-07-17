@@ -3,6 +3,8 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('bulkmail.api.views',
   url(r'^apikey/add/$', 'key_add', name='key_add'),
   url(r'^apikey/$', 'key_list', name='key_list'),
+  
+  url(r'^stats/(\S+)/(\S+)/$', 'campaign_stats', name='campaign_stats'),
 )
 
 urlpatterns += patterns('bulkmail.api.campaign.views',

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.subject }} Stats &sdot; {% endblock %}
+{% block content %}
+<div id="stats">
+  {% with stats = campaign.stats() %}
+  <h1>{{ campaign.subject }} Stats</h1>
+  {% if stats %}
+  <table class="table table-bordered">
+    <tr>
+      <td><strong>Sent:</strong> {{ campaign.sent.strftime("%m/%d/%Y %I:%M %p") }}</td>
+      <td><strong>Opens:</strong> {{ stats.total_opens }}</td>
+      <td><strong>Clicks:</strong> {{ stats.total_clicks }}</td>
+    </tr>
+  </table>
+  <h3>Opens</h3>
+  <div id="opens" class="plot"></div>
+  <hr>
+  <h3>Clicks</h3>
+  <div id="clicks" class="plot"></div>
+  {% else %}
+  <p>
+    <strong>Stats for this campaign have not been compiled yet.</strong>
+  </p>
+  {% endif %}
+  {% endwith %}
+</div>
+{% endblock %}
+{% block footer %}
+{% with stats = campaign.stats() %}
+{% if stats %}
+<script type="text/javascript">
+  var CLICKS = [{% for click in stats.clicks %}[{{ click.0 }}, {{ click.1 }}]{% if not loop.last %}, {% endif %}{% endfor %}];
+  var OPENS = [{% for click in stats.clicks %}[{{ click.0 }}, {{ click.1 }}]{% if not loop.last %}, {% endif %}{% endfor %}];
+  
+  function showTooltip(x, y, contents) {
+    $("<div id='tooltip'>" + contents + "</div>").css({
+			position: "absolute",
+			display: "none",
+			top: y + 10,
+			left: x + 10,
+			border: "1px solid #fdd",
+			padding: "2px",
+			"background-color": "#fee",
+			opacity: 0.80
+		}).appendTo("body").fadeIn(200);
+	}
+  
+  var options = {
+    xaxis: {
+			mode: "time",
+			tickLength: 5,
+		},
+    
+    series: {
+  		lines: {
+				show: true
+			},
+			points: {
+				show: true,
+        radius: 2
+			}
+		},
+    
+    grid: {
+			hoverable: true,
+      clickable: true
+		}
+  };
+  
+  function tool_callback (event, pos, item) {
+    $("#tooltip").remove();
+    
+    if (item) {
+      var y = item.datapoint[1];
+      showTooltip(item.pageX, item.pageY, y);
+    }
+  }
+  
+  $(document).ready(function () {
+    var opens = $.plot("#opens", [OPENS], options);
+    var clicks = $.plot("#clicks", [CLICKS], options);
+    
+    $("#opens").bind("plothover", tool_callback);
+    $("#clicks").bind("plothover", tool_callback);
+  });
+</script>
+{% endif %}
+{% endwith %}
+{% endblock %}

@@ -84,7 +84,7 @@ def campaign_send (request):
 @key_required
 def campaign_send_test (request):
   required = ('subject', 'reply_to', 'list_id', 'campaign_id', 'text', 'test_emails')
-  optional = ('html', 'from_name')
+  optional = ('html', 'from_name', 'analytics')
   
   kwargs = get_required(request, required)
   kwargs.update(get_optional(request, optional))

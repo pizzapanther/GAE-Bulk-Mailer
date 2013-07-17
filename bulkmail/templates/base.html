@@ -4,11 +4,29 @@
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}GAE Bulk Mailer</title>
     <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ static("bootstrap/css/bootstrap.min.css") }}" rel="stylesheet">
+    <link href="{{ static("bootstrap/css/bootstrap-responsive.min.css") }}" rel="stylesheet">
+    {% if DEBUG %}
+    <link rel="stylesheet/less" type="text/css" href="{{ static("less/styles.less") }}">
+    <script src="{{ static("js/less-1.4.1.min.js") }}"></script>
+    {% else %}
+    <link rel="stylesheet" href="{{ static("less/styles.css") }}">
+    {% endif %}
     {% block head %}{% endblock %}
   </head>
   <body>
-    <div style="width: 960px; margin: 0 auto;">
-      {% block content %}{% endblock %}
+    <div class="container">
+      <div class="row">
+        <div class="span9">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
     </div>
+    <script src="{{ static("js/flot/jquery.min.js") }}"></script>
+    <script src="{{ static("bootstrap/js/bootstrap.min.js") }}"></script>
+    <script src="{{ static("js/flot/jquery.flot.min.js") }}"></script>
+    <script src="{{ static("js/flot/jquery.flot.time.min.js") }}"></script>
+    {% block footer %}{% endblock %}
   </body>
 </html>
