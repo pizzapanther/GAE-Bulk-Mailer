@@ -51,5 +51,10 @@ class Track (ndb.Model):
           self.browser_name = b['browser']['name']
           
         if 'version' in b['browser']:
-          self.browser_version = int(b['browser']['version'].split('.')[0])
-          
+          try:
+            self.browser_version = int(b['browser']['version'].split('.')[0])
+            
+          except:
+            pass
+            
+            
