@@ -4,5 +4,6 @@
 local_settings.py
 app.yaml
 queue.yaml
+cron.yaml
 private_settings
 

@@ -20,6 +20,14 @@ handlers:
   script: bulkmail.wsgi.app
   login: admin
   
+- url: /api/compile-stats
+  script: bulkmail.wsgi.app
+  login: admin
+  
+- url: /amazon/send
+  script: bulkmail.wsgi.app
+  login: admin
+  
 - url: /_ah/bounce
   script: bulkmail.wsgi.app
   login: admin

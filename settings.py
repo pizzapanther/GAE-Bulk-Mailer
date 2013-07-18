@@ -172,6 +172,8 @@ REPORT_UNSUBSCRIBE_URL = 'https://example.com/unsubscribe'
 AWS_KEY_ID = ''
 AWS_SECRET_KEY = ''
 
+COMPILE_STATS_PERIOD = 14  #in days
+
 from jinja2 import Environment, PackageLoader
 TPL_ENV = Environment(
   loader=PackageLoader('bulkmail', 'templates'),

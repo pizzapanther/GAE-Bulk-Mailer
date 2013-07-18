@@ -1,0 +1,4 @@
+cron:
+- description: Compile Stats
+  url: /api/compile-stats
+  schedule: every 30 minutes

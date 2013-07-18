@@ -4,6 +4,7 @@ urlpatterns = patterns('bulkmail.api.views',
   url(r'^apikey/add/$', 'key_add', name='key_add'),
   url(r'^apikey/$', 'key_list', name='key_list'),
   
+  url(r'^compile-stats$', 'compile_stats', name='compile_stats'),
   url(r'^stats/(\S+)/(\S+)/$', 'campaign_stats', name='campaign_stats'),
 )
 

@@ -30,7 +30,7 @@
 {% if stats %}
 <script type="text/javascript">
   var CLICKS = [{% for click in stats.clicks %}[{{ click.0 }}, {{ click.1 }}]{% if not loop.last %}, {% endif %}{% endfor %}];
-  var OPENS = [{% for click in stats.clicks %}[{{ click.0 }}, {{ click.1 }}]{% if not loop.last %}, {% endif %}{% endfor %}];
+  var OPENS = [{% for click in stats.opens %}[{{ click.0 }}, {{ click.1 }}]{% if not loop.last %}, {% endif %}{% endfor %}];
   
   function showTooltip(x, y, contents) {
     $("<div id='tooltip'>" + contents + "</div>").css({
