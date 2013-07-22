@@ -1,4 +1,4 @@
 cron:
 - description: Compile Stats
   url: /api/compile-stats
-  schedule: every 4 hours
+  schedule: every 6 hours
