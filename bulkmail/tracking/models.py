@@ -1,3 +1,4 @@
+import datetime
 import calendar
 import logging
 
@@ -35,54 +36,58 @@ class Stats (ndb.Model):
     else:
       m = t.created.minute - (t.created.minute % 10)
       
-    time = t.created.replace(minute=m, second=0, microsecond=0)
-    key = calendar.timegm(time.timetuple()) * 1000
-    data_dict = getattr(self, t.ttype + 's_temp')
-    
-    if data_dict.has_key(key):
-      data_dict[key] += 1
+    if m == 60:
+      time = t.created.replace(minute=0, second=0, microsecond=0)
+      time = time + datetime.timedelta(hours=1)
       
     else:
-      data_dict[key] = 1
+      time = t.created.replace(minute=m, second=0, microsecond=0)
       
-  def sort_data (self, temp, perm):
-    keys = temp.keys()
-    keys.sort()
-    for k in keys:
-      perm.append((k, temp[k]))
-      
-  def process (self):
-    cursor = None
-    self.total_clicks = 0
-    self.total_opens = 0
-    self.clicks = []
-    self.opens = []
+    key = calendar.timegm(time.timetuple())
     
-    self.clicks_temp = {}
-    self.opens_temp = {}
+    if self.temp.has_key(key):
+      self.temp[key] += 1
+      
+    else:
+      self.temp[key] = 1
+      
+  def sort_data (self, ptype):
+    keys = self.temp.keys()
+    keys.sort()
+    perm = []
+    
+    for k in keys:
+      perm.append((k, self.temp[k]))
+      
+    setattr(self, ptype, perm)
+    
+  def process (self, ptype):
+    ttype = ptype[:-1]
+    
+    cursor = None
+    total = 0
+    
+    self.temp = {}
     
     while 1:
-      tracks, cursor, more = Track.query(Track.list_id==self.list_id, Track.campaign_id==self.campaign_id).fetch_page(500, start_cursor=cursor)
+      tracks, cursor, more = Track.query(
+        Track.list_id == self.list_id,
+        Track.campaign_id == self.campaign_id,
+        Track.ttype == ttype,
+      ).fetch_page(100, start_cursor=cursor)
       
       for t in tracks:
-        if t.ttype in ('open', 'click'):
-          self.process_track(t)
-          
-          if t.ttype == 'open':
-            self.total_opens += 1
-            
-          if t.ttype == 'click':
-            self.total_clicks += 1
-            
+        self.process_track(t)
+        total += 1
+        
       if more and cursor:
         continue
         
       else:
         break
         
-    self.sort_data(self.clicks_temp, self.clicks)
-    self.sort_data(self.opens_temp, self.opens)
-    logging.info(self.opens)
+    setattr(self, 'total_' + ptype, total)
+    self.sort_data(ptype)
     
 class Track (ndb.Model):
   ttype = ndb.StringProperty() #open, click, image
