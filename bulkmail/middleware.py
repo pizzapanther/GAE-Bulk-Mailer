@@ -23,10 +23,21 @@ class User (object):
         self._userid = self.user.user_id()
         self._is_super = False
         self._is_auth = True
+        self._is_staff = False
         
         if self._email.lower() in settings.SUPER_ADMINS:
           self._is_super = True
+          self._is_staff = True
           
+        elif self._email.lower() in settings.STAFF_USERS:
+          self._is_staff = True
+          
+        else:
+          for d in settings.STAFF_DOMAINS:
+            if self._email.lower().endswith(d):
+              self._is_staff = True
+              break
+              
       else:
         self._is_auth = False
         
@@ -45,6 +56,13 @@ class User (object):
       self.is_authorized()
       
     return self._is_super
+    
+  @property
+  def is_staff (self):
+    if self._is_auth is None:
+      self.is_authorized()
+      
+    return self._is_staff
     
   @property
   def userid (self):

@@ -1,3 +1,9 @@
+#stats .font80 {
+  font-size: 80%;
+}
+#stats .font90 {
+  font-size: 90%;
+}
 #stats h1 {
   font-size: 24px;
   line-height: 1.2em;
@@ -5,4 +11,28 @@
 #stats .plot {
   width: 870px;
   height: 300px;
+}
+#stats .tags ul {
+  margin: 5px 0;
+  padding: 0;
+  list-style: none;
+}
+#stats .tags ul li {
+  width: 170px;
+  float: left;
+}
+#stats .tags ol li strong {
+  max-width: 650px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+.clear {
+  clear: both;
+}
+footer {
+  text-align: center;
+  font-size: 80%;
+  margin: 20px 0;
 }

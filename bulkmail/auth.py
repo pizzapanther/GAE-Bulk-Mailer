@@ -21,6 +21,20 @@ def super_admin_required (target):
     
   return wrapper
   
+def staff_required (target):
+  def wrapper (*args, **kwargs):
+    request = args[0]
+    if request.user.is_authorized():
+      if request.user.is_staff:
+        response = target(*args, **kwargs)
+        return response
+        
+      return PermissionDenied()
+      
+    return http.HttpResponseRedirect(users.create_login_url(request.build_absolute_uri()))
+    
+  return wrapper
+  
 def key_required (target):
   def wrapper (*args, **kwargs):
     request = args[0]

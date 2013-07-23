@@ -4,19 +4,58 @@
 <div id="stats">
   {% with stats = campaign.stats() %}
   <h1>{{ campaign.subject }} Stats</h1>
+  <div class="font80" style="padding-bottom: 10px;">
+    <a href="javascript: void(0)" onclick="compile_stats()">Compile Stats Now</a>
+  </div>
   {% if stats %}
   <table class="table table-bordered">
     <tr>
       <td><strong>Sent:</strong> {{ campaign.sent.strftime("%m/%d/%Y %I:%M %p") }}</td>
       <td><strong>Opens:</strong> {{ stats.total_opens }}</td>
       <td><strong>Clicks:</strong> {{ stats.total_clicks }}</td>
+      {% if stats.last_compiled %}<td class="font80">Last Compiled: {{ stats.last_compiled.strftime("%m/%d/%Y %I:%M %p") }}</td>{% endif %}
     </tr>
   </table>
   <h3>Opens</h3>
   <div id="opens" class="plot"></div>
+  {% if stats.clients %}
+  <div class="tags">
+    <strong>E-Mail Clients</strong>
+    <ul class="font90">
+      {% for client in stats.clients_sorted() %}
+      <li><strong>{{ client.0 }}:</strong> {{ stats.opens_pc(client.1) }}%</li>
+      {% endfor %}
+      <li class="clear"></li>
+    </ul>
+    <div class="clear"></div>
+  </div>
+  {% endif %}
   <hr>
   <h3>Clicks</h3>
   <div id="clicks" class="plot"></div>
+  {% if stats.tags %}
+  <div class="tags">
+    <strong>Tags (clicks - %)</strong>
+    <ul class="font90">
+      {% for tag in stats.tags_sorted() %}
+      <li><strong>{{ tag.0 }}:</strong> {{ tag.1 }} - {{ stats.clicks_pc(tag.1) }}%</li>
+      {% endfor %}
+      <li class="clear"></li>
+    </ul>
+    <div class="clear"></div>
+  </div>
+  {% endif %}
+  {% if stats.urls %}
+  <div class="tags" style="padding-top: 20px;">
+    <strong>URLs (clicks - %)</strong>
+    <ol class="font90">
+      {% for tag in stats.urls_sorted() %}
+      <li><strong>{{ tag.0|shorten_url }}:</strong> {{ tag.1 }} - {{ stats.clicks_pc(tag.1) }}%</li>
+      {% endfor %}
+    </ol>
+    <div class="clear"></div>
+  </div>
+  {% endif %}
   {% else %}
   <p>
     <strong>Stats for this campaign have not been compiled yet.</strong>
@@ -85,5 +124,15 @@
   });
 </script>
 {% endif %}
+<script type="text/javascript">
+  function compile_stats () {
+    $.ajax({
+      type: "POST",
+      data: {key: '{{ campaign.key.urlsafe() }}'},
+      url: '/api/force-compile-stats',
+      success: function () { alert('Stats are being compiled.  Please refresh this page in a few minutes.'); },
+    });
+  }
+</script>
 {% endwith %}
 {% endblock %}

@@ -163,6 +163,8 @@ MAIL_SEND_RATE = 85
 MAIL_SEND_INTERVAL = 'seconds'
 
 SUPER_ADMINS = ()
+STAFF_DOMAINS = ()
+STAFF_USERS = ()
 
 BASE_URL = 'https://APPID.appspot.com'
 
@@ -179,6 +181,9 @@ TPL_ENV = Environment(
   loader=PackageLoader('bulkmail', 'templates'),
   extensions=['jinja2.ext.with_']
 )
+
+from bulkmail.filters import shorten_url
+TPL_ENV.filters['shorten_url'] = shorten_url
 
 try:
   from local_settings import *

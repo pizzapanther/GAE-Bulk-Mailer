@@ -6,7 +6,7 @@ from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 
 from ..shortcuts import render_tpl, ok
-from ..auth import super_admin_required
+from ..auth import super_admin_required, staff_required
 
 from .models import ApiKey, Campaign, generate_key
 from .forms import ApiKeyForm
@@ -51,9 +51,15 @@ def key_edit_view (request, kid=None):
   return render_tpl(request, 'api/key_edit.html', c)
   
 @csrf_exempt
-def compile_stats (request):
-  #return ok()
+@staff_required
+def force_compile_stats (request):
+  key = request.POST.get('key', '')
+  cmpgn = ndb.Key(urlsafe=key).get()
+  taskqueue.add(url='/api/compile-stats', params={'list_id': cmpgn.list_id, 'campaign_id': cmpgn.campaign_id}, queue_name='stats')
+  return ok()
   
+@csrf_exempt
+def compile_stats (request):
   list_id = request.POST.get('list_id', '')
   campaign_id = request.POST.get('campaign_id', '')
   process = request.POST.get('process', '')
@@ -93,6 +99,7 @@ def compile_stats (request):
       
   return ok()
   
+@staff_required
 def campaign_stats (request, list_id, campaign_id):
   campaign = Campaign.query(Campaign.list_id == list_id, Campaign.campaign_id == campaign_id).get()
   if campaign:

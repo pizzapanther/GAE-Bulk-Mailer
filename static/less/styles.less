@@ -1,5 +1,13 @@
 
 #stats {
+  .font80 {
+    font-size: 80%;
+  }
+  
+  .font90 {
+    font-size: 90%;
+  }
+  
   h1 {
     font-size: 24px;
     line-height: 1.2em;
@@ -13,4 +21,39 @@
     width: 870px;
     height: 300px;
   }
+  
+  .tags {
+    ul {
+      margin: 5px 0;
+      padding: 0;
+      list-style: none;
+      
+      li {
+        width: 170px;
+        float: left;
+      }
+    }
+    
+    ol {
+      li {
+        strong {
+          max-width: 650px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+.clear {
+  clear: both;
+}
+
+footer {
+  text-align: center;
+  font-size: 80%;
+  margin: 20px 0;
 }

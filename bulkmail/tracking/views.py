@@ -1,3 +1,5 @@
+import logging
+
 from django import http
 
 from google.appengine.ext import ndb
@@ -57,15 +59,22 @@ def ua_string (request):
     
   return None
   
+def refer_string (request):
+  if request.META.has_key('HTTP_REFERER'):
+    return request.META['HTTP_REFERER']
+    
+  return None
+  
 @verify_email
 def open_pixel (request, list_id, campaign_id, email=None):
   ua = ua_string(request)
+  refer = refer_string(request)
   
   if email:
-    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower(), user_agent=ua)
+    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, email=email.lower(), user_agent=ua, referer=refer)
     
   else:
-    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id)
+    t = Track(ttype='open', list_id=list_id, campaign_id=campaign_id, user_agent=ua, referer=refer)
     
   t.detect_browser()
   t.put()
@@ -75,6 +84,7 @@ def open_pixel (request, list_id, campaign_id, email=None):
 @verify_email
 def url_redirect (request, url, email=None):
   ua = ua_string(request)
+  refer = refer_string(request)
   
   ttype = 'click'
   if url.html_tag == 'img':
@@ -89,6 +99,7 @@ def url_redirect (request, url, email=None):
       url=url.key,
       tags=url.tags,
       user_agent=ua,
+      referer=refer,
     )
     
   else:
@@ -99,6 +110,7 @@ def url_redirect (request, url, email=None):
       url=url.key,
       tags=url.tags,
       user_agent=ua,
+      referer=refer,
     )
     
   t.detect_browser()
