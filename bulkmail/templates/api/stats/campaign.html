@@ -10,8 +10,9 @@
   {% if stats %}
   <table class="table table-bordered">
     <tr>
-      <td><strong>Sent:</strong> {{ campaign.sent.strftime("%m/%d/%Y %I:%M %p") }}</td>
-      <td><strong>Opens:</strong> {{ stats.total_opens }}</td>
+      <td><strong>Sent On:</strong> {{ campaign.sent.strftime("%m/%d/%Y %I:%M %p") }}</td>
+      <td><strong>Sent:</strong> {{ stats.total_sends }}</td>
+      <td><strong>Opens:</strong> {{ stats.total_opens }}/{{ stats.open_rate() }}%</td>
       <td><strong>Clicks:</strong> {{ stats.total_clicks }}</td>
       {% if stats.last_compiled %}<td class="font80">Last Compiled: {{ stats.last_compiled.strftime("%m/%d/%Y %I:%M %p") }}</td>{% endif %}
     </tr>

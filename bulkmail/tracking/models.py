@@ -24,6 +24,7 @@ class Stats (ndb.Model):
   
   total_clicks = ndb.IntegerProperty(default=0)
   total_opens = ndb.IntegerProperty(default=0)
+  total_sends = ndb.IntegerProperty(default=0)
   
   clicks = ndb.JsonProperty(compressed=True)
   tags = ndb.JsonProperty(compressed=True, required=False)
@@ -35,6 +36,14 @@ class Stats (ndb.Model):
   created = ndb.DateTimeProperty(auto_now_add=True)
   last_compiled = ndb.DateTimeProperty(auto_now=True)
   
+  def open_rate (self):
+    try:
+      rate = (self.total_opens / float(self.total_sends)) * 100
+      return round(rate)
+      
+    except:
+      return 0
+      
   def clients_sorted (self):
     return reversed(sorted(self.clients.iteritems(), key=operator.itemgetter(1)))
     
@@ -75,6 +84,14 @@ class Stats (ndb.Model):
       self.temp[key] = 1
       
     if ptype == 'clicks':
+      self.total_sends = 0
+      from bulkmail.api.models import Campaign
+      c = Campaign.query(Campaign.campaign_id == self.campaign_id, Campaign.list_id == self.list_id).get()
+      
+      for key in c.send_data:
+        sd = key.get()
+        self.total_sends += len(sd.data)
+        
       if t.tags:
         for tag in t.tags:
           if tag in self.tags:
