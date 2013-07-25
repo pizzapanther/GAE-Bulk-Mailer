@@ -84,14 +84,6 @@ class Stats (ndb.Model):
       self.temp[key] = 1
       
     if ptype == 'clicks':
-      self.total_sends = 0
-      from bulkmail.api.models import Campaign
-      c = Campaign.query(Campaign.campaign_id == self.campaign_id, Campaign.list_id == self.list_id).get()
-      
-      for key in c.send_data:
-        sd = key.get()
-        self.total_sends += len(sd.data)
-        
       if t.tags:
         for tag in t.tags:
           if tag in self.tags:
@@ -144,7 +136,15 @@ class Stats (ndb.Model):
       
     if ptype == 'opens':
       self.clients = {}
+      self.total_sends = 0
       
+      from bulkmail.api.models import Campaign
+      c = Campaign.query(Campaign.campaign_id == self.campaign_id, Campaign.list_id == self.list_id).get()
+      
+      for key in c.send_data:
+        sd = key.get()
+        self.total_sends += len(sd.data)
+        
     while 1:
       tracks, cursor, more = Track.query(
         Track.list_id == self.list_id,
