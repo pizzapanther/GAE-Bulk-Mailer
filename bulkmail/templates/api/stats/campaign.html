@@ -38,8 +38,13 @@
   <div class="tags">
     <strong>Tags (clicks - %)</strong>
     <ul class="font90">
-      {% for tag in stats.tags_sorted() %}
+      {% for tag_group in stats.tags_sorted() %}
+      <li{% if loop.index0 != 0 %} style="margin-top: 10px;"{% endif %}><strong>{{ tag_group.0 }} Tags</strong></li>
+      <li class="clear"></li>
+      {% for tag in tag_group.1 %}
       <li><strong>{{ tag.0 }}:</strong> {{ tag.1 }} - {{ stats.clicks_pc(tag.1) }}%</li>
+      {% endfor %}
+      <li class="clear"></li>
       {% endfor %}
       <li class="clear"></li>
     </ul>

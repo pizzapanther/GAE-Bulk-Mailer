@@ -2,6 +2,7 @@ import datetime
 import calendar
 import logging
 import operator
+from collections import OrderedDict
 
 import httpagentparser
 
@@ -48,7 +49,27 @@ class Stats (ndb.Model):
     return reversed(sorted(self.clients.iteritems(), key=operator.itemgetter(1)))
     
   def tags_sorted (self):
-    return reversed(sorted(self.tags.iteritems(), key=operator.itemgetter(1)))
+    tags = reversed(sorted(self.tags.iteritems(), key=operator.itemgetter(1)))
+    grouped = OrderedDict()
+    
+    for tag in tags:
+      logging.info(tag)
+      temp = tag[0].split(':')
+      if len(temp) > 1:
+        g = temp[0]
+        t = temp[1]
+        
+      else:
+        g = 'Ungrouped'
+        t = temp[0]
+        
+      if grouped.has_key(g):
+        grouped[g].append((t, tag[1]))
+        
+      else:
+        grouped[g] = [(t, tag[1])]
+        
+    return grouped.items()
     
   def urls_sorted (self):
     return reversed(sorted(self.urls.iteritems(), key=operator.itemgetter(1)))
