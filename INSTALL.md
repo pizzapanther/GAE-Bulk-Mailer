@@ -6,11 +6,14 @@
 ``cd your-app-id``<br>
 ``cp app.yaml.example app.yaml``<br>
 ``cp queue.yaml.example queue.yaml``<br>
+``cp cron.yaml.example cron.yaml``<br>
 ``touch local_settings.py``
 4. Insert your app ID into app.yaml.
 5. Tweak queue.yaml depending on your send rate limits.
 6. Tweak your local_settings.py.  Some settings you may wish to add:<br>
 ``SUPER_ADMINS = ('your_address@gmail.com',)``<br>
+``STAFF_USERS = ('staff_user@gmail.com',)``<br>
+``STAFF_DOMAINS = ('gmail-app-domain.com',)``<br>
 ``ALLOWED_HOSTS = ('your-app-id.appspot.com', '1.your-app-id.appspot.com')``<br>
 ``DEFAULT_FROM_EMAIL = 'from_address@example.com'``<br>
 ``BASE_URL = 'https://your-app-id.appspot.com'``<br>
