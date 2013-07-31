@@ -51,9 +51,9 @@ class Stats (ndb.Model):
   def tags_sorted (self):
     tags = reversed(sorted(self.tags.iteritems(), key=operator.itemgetter(1)))
     grouped = OrderedDict()
+    totals = {}
     
     for tag in tags:
-      logging.info(tag)
       temp = tag[0].split(':')
       if len(temp) > 1:
         g = temp[0]
@@ -64,11 +64,22 @@ class Stats (ndb.Model):
         t = temp[0]
         
       if grouped.has_key(g):
-        grouped[g].append((t, tag[1]))
+        grouped[g].append([t, None, tag[1]])
+        totals[g] += tag[1]
         
       else:
-        grouped[g] = [(t, tag[1])]
+        grouped[g] = [[t, None, tag[1]]]
+        totals[g] = tag[1]
         
+    for key in grouped.keys():
+      if key != 'Ungrouped':
+        total = 0
+        for t in grouped[key]:
+          total += t[2]
+          
+        for t in grouped[key]:
+          t[1] = round((float(t[2]) / total) * 100, 1)
+          
     return grouped.items()
     
   def urls_sorted (self):
@@ -76,11 +87,11 @@ class Stats (ndb.Model):
     
   def opens_pc (self, count):
     pc = (float(count) / self.total_opens) * 100
-    return int(round(pc))
+    return round(pc, 1)
     
   def clicks_pc (self, count):
     pc = (float(count) / self.total_clicks) * 100
-    return int(round(pc))
+    return round(pc, 1)
     
   def process_track (self, t, ptype):
     if t.created.minute % 10 >= 5:

@@ -36,13 +36,13 @@
   <div id="clicks" class="plot"></div>
   {% if stats.tags %}
   <div class="tags">
-    <strong>Tags (clicks - %)</strong>
+    <strong>Tags (clicks - Group % - Overall %)</strong>
     <ul class="font90">
       {% for tag_group in stats.tags_sorted() %}
       <li{% if loop.index0 != 0 %} style="margin-top: 10px;"{% endif %}><strong>{{ tag_group.0 }} Tags</strong></li>
       <li class="clear"></li>
       {% for tag in tag_group.1 %}
-      <li><strong>{{ tag.0 }}:</strong> {{ tag.1 }} - {{ stats.clicks_pc(tag.1) }}%</li>
+      <li><strong>{{ tag.0 }}:</strong> {{ tag.2 }} - {% if tag.1 %}{{ tag.1 }}%{% else %}N/A{% endif %} - {{ stats.clicks_pc(tag.2) }}%</li>
       {% endfor %}
       <li class="clear"></li>
       {% endfor %}
