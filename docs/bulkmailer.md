@@ -35,7 +35,7 @@ emails = [
 # your template.  See the API documentation for default context added to each template.
 
 # Send a test
-bm.campaign_send_test("unique_list_id", cmpgn_id, emails, payload)
+bm.campaign_send_test("unique_list_id", "unique_campaign_id", emails, payload)
 
 #Normal Campaign
 bm.campaign_create(payload)
