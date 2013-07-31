@@ -1,6 +1,11 @@
 # API Documentation
 
+## General Requirements
+Every request requires an API key and a set of required parameters encoded via a standard HTTP POST request.
+You can create an API Key by visiting /api/apikey/ on your GAE Bulk Mail instance (admin privileges required).
+The API key should be sent as a parameter named "key" with every request.
 
+<hr>
 ### /api/campaign/create/
 Creates a campaign to send.
 
@@ -18,7 +23,7 @@ Creates a campaign to send.
 
 **Response:**
 HTTP Response 200
-
+<hr>
 ### /api/campaign/add_recipients/
 Add recipients to your campaign.
 
@@ -29,7 +34,7 @@ Add recipients to your campaign.
 
 **Response:**
 HTTP Response 200
-
+<hr>
 ### /api/campaign/send/test/
 Send a test campaign e-mail
 
@@ -48,7 +53,7 @@ Send a test campaign e-mail
 
 **Response:**
 HTTP Response 200
-
+<hr>
 ### /api/campaign/send/
 Send a campaign
 
