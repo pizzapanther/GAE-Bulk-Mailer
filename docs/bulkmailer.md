@@ -1,5 +1,7 @@
 # bulkmailer.py Documentation
 
+Github for Bulk Mailer library: https://github.com/pizzapanther/Bulk-Mailer
+
 ### Installation:
 ``pip install bulkmailer``
 
