@@ -68,6 +68,7 @@ class BaseEmailer (object):
           href = link.get(attr)
           if href and href.startswith(('http://', 'https://')):
             if not href.startswith(settings.BASE_URL):
+              href_key = href
               href, tags = self.get_tags(href)
               
               if tag == 'a' and self.analytics:
@@ -81,8 +82,8 @@ class BaseEmailer (object):
                 else:
                   href += '?' + self.analytics
                   
-              if href in self.html_urls:
-                link[attr] = self.html_urls[href]
+              if href_key in self.html_urls:
+                link[attr] = self.html_urls[href_key]
                 
               else:
                 url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag, tags=tags)
@@ -94,7 +95,7 @@ class BaseEmailer (object):
                   urllib.quote(context['email']),
                   urllib.quote(context['key'])
                 )
-                self.html_urls[href] = new_url
+                self.html_urls[href_key] = new_url
                 link[attr] = new_url
                 
       soup.body.append(pixel_tag)
