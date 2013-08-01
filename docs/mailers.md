@@ -10,7 +10,7 @@ even if you get billed you still can not go past 20,000 emails per day. I've tri
 to see what the limit would be for premier accounts as their docs state it should be flexible if you go premier.
 However, they stated you could not go above that limit.
 
-## Amazon Mailer
+## Amazon Mailer (bulkmail.mailers.amazon)
 The Amazon Mailer uses [Amazon SES](http://aws.amazon.com/ses/) to send mail and 
 [Amazon SNS](http://aws.amazon.com/sns/) to recieve bounce and complaint notifications.  This requires more 
 setup but Amazon will raise your send rate and send limit automatically as you use the service more.
