@@ -30,7 +30,7 @@ are more effective.
 
 To tag a URL simply add something like the following to a URL: #bmtags:tag1,tag2
 
-You can further groups tags like: #bmtags:group1:tag1,group1:tag2
+You can further group tags like: #bmtags:group1:tag1,group1:tag2
 
 The bmtag string will be removed from your URL during template processing and will be recorded for tracking.
 
