@@ -31,8 +31,9 @@
 [Web Hooks Documentation](docs/hooks.md) for more info.
 
 ### More Info
-* [API Documentation](docs/api.md)
-* [Bulkmailer.py Documentation](docs/bulkmailer.md) (API implemented in Python)
-* [Web Hooks Documentation](docs/hooks.md)
-* [Templating Documentation](docs/templates.md)
-* [Tracking Documentation](docs/tracking.md)
+* [API Details](docs/api.md)
+* [Bulkmailer.py](docs/bulkmailer.md) (API implemented in Python)
+* [Web Hooks](docs/hooks.md)
+* [Templating](docs/templates.md)
+* [Tracking](docs/tracking.md)
+* [Mailer Backends](docs/mailers.md)
