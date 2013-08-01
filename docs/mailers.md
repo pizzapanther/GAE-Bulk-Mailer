@@ -7,7 +7,7 @@ send rate settings according to your quota limitations.
 The Google Mailer uses the send mail system built into Google App Engine.  This is system is the easiest to use
 but has [limitations](https://developers.google.com/appengine/docs/quotas#Mail). The biggest limit to note is that
 even if you get billed you still can not go past 20,000 emails per day. I've tried to talk to Google representives
-to see what the limit would be for premier accounts as their docs state it should be flexible if you go premier.
+to see what the limit would be for premier accounts as their docs state that it should be flexible if you go premier.
 However, they stated you could not go above that limit.
 
 ## Amazon Mailer (bulkmail.mailers.amazon)
@@ -23,4 +23,4 @@ setup but Amazon will raise your send rate and send limit automatically as you u
 5. SES: Verify your sender address.
 6. SES: Setup your DKIM and DNS records for your domain and sender address.
 7. SES: Setup your feedback for bounces and complaints to the topic created in step 3 for your domain and sender address.
-8. SES: Make sure you Amazon SES account is out of sandbox mode.
+8. SES: Make sure your Amazon SES account is out of sandbox mode.
