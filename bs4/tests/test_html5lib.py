@@ -70,3 +70,16 @@ class HTML5LibBuilderSmokeTest(SoupTest, HTML5TreeBuilderSmokeTest):
         soup = self.soup(markup)
         # Verify that we can reach the <p> tag; this means the tree is connected.
         self.assertEqual(b"<p>foo</p>", soup.p.encode())
+
+    def test_reparented_markup(self):
+        markup = '<p><em>foo</p>\n<p>bar<a></a></em></p>'
+        soup = self.soup(markup)
+        self.assertEqual(u"<body><p><em>foo</em></p><em>\n</em><p><em>bar<a></a></em></p></body>", soup.body.decode())
+        self.assertEqual(2, len(soup.find_all('p')))
+
+
+    def test_reparented_markup_ends_with_whitespace(self):
+        markup = '<p><em>foo</p>\n<p>bar<a></a></em></p>\n'
+        soup = self.soup(markup)
+        self.assertEqual(u"<body><p><em>foo</em></p><em>\n</em><p><em>bar<a></a></em></p>\n</body>", soup.body.decode())
+        self.assertEqual(2, len(soup.find_all('p')))
