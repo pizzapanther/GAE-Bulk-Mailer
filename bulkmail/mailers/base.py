@@ -55,11 +55,14 @@ class BaseEmailer (object):
         'img': 'src',
       }
       
+      email_escaped = urllib.quote(context['email'])
+      key_escaped = urllib.quote(context['key'])
+      
       pixel_url = '%s%s?email=%s&key=%s' % (
         settings.BASE_URL,
         reverse('open_pixel', args=(self.list_id, self.campaign_id)),
-        urllib.quote(context['email']),
-        urllib.quote(context['key'])
+        email_escaped,
+        key_escaped
       )
       pixel_tag = soup.new_tag("img", src=pixel_url)
       
@@ -83,20 +86,27 @@ class BaseEmailer (object):
                   href += '?' + self.analytics
                   
               if href_key in self.html_urls:
-                link[attr] = self.html_urls[href_key]
+                link[attr] = '%s?email=%s&key=%s' % (
+                  self.html_urls[href_key],
+                  email_escaped,
+                  key_escaped,
+                )
                 
               else:
                 url = Url(url=href, list_id=self.list_id, campaign_id=self.campaign_id, html_tag=tag, tags=tags)
                 url.put()
                 
-                new_url = '%s%s?email=%s&key=%s' % (
+                new_url = '%s%s' % (
                   settings.BASE_URL,
                   reverse('url_redirect', args=(url.key.urlsafe(),)),
-                  urllib.quote(context['email']),
-                  urllib.quote(context['key'])
                 )
                 self.html_urls[href_key] = new_url
-                link[attr] = new_url
+                
+                link[attr] = '%s?email=%s&key=%s' % (
+                  new_url,
+                  email_escaped,
+                  key_escaped,
+                )
                 
       soup.body.append(pixel_tag)
       text = unicode(soup)

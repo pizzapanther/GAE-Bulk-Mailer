@@ -281,6 +281,14 @@ class HTMLTreeBuilderSmokeTest(object):
     # to detect any differences between them.
     #
 
+    def test_can_parse_unicode_document(self):
+        # A seemingly innocuous document... but it's in Unicode! And
+        # it contains characters that can't be represented in the
+        # encoding found in the  declaration! The horror!
+        markup = u'<html><head><meta encoding="euc-jp"></head><body>Sacr\N{LATIN SMALL LETTER E WITH ACUTE} bleu!</body>'
+        soup = self.soup(markup)
+        self.assertEqual(u'Sacr\xe9 bleu!', soup.body.string)
+
     def test_soupstrainer(self):
         """Parsers should be able to work with SoupStrainers."""
         strainer = SoupStrainer("b")
@@ -483,6 +491,11 @@ class XMLTreeBuilderSmokeTest(object):
         soup.script.string = 'console.log("< < hey > > ");'
         encoded = soup.encode()
         self.assertTrue(b"&lt; &lt; hey &gt; &gt;" in encoded)
+
+    def test_can_parse_unicode_document(self):
+        markup = u'<?xml version="1.0" encoding="euc-jp"><root>Sacr\N{LATIN SMALL LETTER E WITH ACUTE} bleu!</root>'
+        soup = self.soup(markup)
+        self.assertEqual(u'Sacr\xe9 bleu!', soup.root.string)
 
     def test_popping_namespaced_tag(self):
         markup = '<rss xmlns:dc="foo"><dc:creator>b</dc:creator><dc:date>2012-07-02T20:33:42Z</dc:date><dc:rights>c</dc:rights><image>d</image></rss>'
