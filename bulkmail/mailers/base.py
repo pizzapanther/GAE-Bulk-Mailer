@@ -71,7 +71,7 @@ class BaseEmailer (object):
           href = link.get(attr)
           if href and href.startswith(('http://', 'https://')):
             if not href.startswith(settings.BASE_URL):
-              href_key = href + context['email'] + context['key']
+              href_key = href
               href, tags = self.get_tags(href)
               
               if tag == 'a' and self.analytics:
