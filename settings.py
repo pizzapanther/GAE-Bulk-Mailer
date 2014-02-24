@@ -156,7 +156,7 @@ LOGGING = {
     }
 }
 
-LIST_LIMIT = 100
+LIST_LIMIT = 50
 
 EMAILER = 'bulkmail.mailers.gae'
 MAIL_SEND_RATE = 85
